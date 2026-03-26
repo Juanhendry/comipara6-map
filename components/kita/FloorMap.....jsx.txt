@@ -1,0 +1,653 @@
+"use client";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+
+// ─── SHARED DATA STORE (simulates Supabase / global state) ───────────────────
+// In production replace with Supabase queries
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem("cp6_users") || "null") || INITIAL_USERS; }
+  catch { return INITIAL_USERS; }
+}
+function saveUsers(u) { localStorage.setItem("cp6_users", JSON.stringify(u)); }
+function getFandoms() {
+  try { return JSON.parse(localStorage.getItem("cp6_fandoms") || "null") || DEFAULT_FANDOMS; }
+  catch { return DEFAULT_FANDOMS; }
+}
+
+const DEFAULT_FANDOMS = [
+  "Genshin Impact","Honkai Star Rail","Blue Archive","Hololive","Nijisanji",
+  "Attack on Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Naruto",
+  "BTS","ENHYPEN","SEVENTEEN","Stray Kids","NewJeans",
+  "Valorant","League of Legends","Minecraft","Elden Ring","Final Fantasy",
+  "My Hero Academia","Spy x Family","Chainsaw Man","Frieren","Bocchi the Rock",
+  "Vtuber Original","Original Art","Webtoon","Light Novel","Cosplay",
+  "Arknights","Arkham Knight","Arknights Endfield","Honkai Impact",
+  "Gachiakuta","Gacha Game","Gakuen Idolmaster",
+];
+
+const INITIAL_USERS = [
+  { id:1, name:"Kusuma",    email:"kusuma@mail.com",  password:"user123", role:"user",       booths:["A16"], fandoms:["Genshin Impact","Original Art"] },
+  { id:2, name:"Bagas",     email:"bagas@mail.com",   password:"user123", role:"user",       booths:["A17"], fandoms:["Attack on Titan"] },
+  { id:3, name:"Wijaya",    email:"wijaya@mail.com",  password:"user123", role:"user",       booths:["D16","D01"], fandoms:["Naruto","One Piece"] },
+  { id:4, name:"Admin",     email:"admin@comipara.com",password:"admin123",role:"admin",     booths:[],     fandoms:[] },
+  { id:5, name:"SuperAdmin",email:"super@comipara.com",password:"super123",role:"super_admin",booths:[],   fandoms:[] },
+];
+
+// ─── GEOMETRY ─────────────────────────────────────────────────────────────────
+const LETTERS = ["A","B","C","D","E","F","G","H","I","J","K","L","M"];
+const BW=32, BH=22, BG=2, CG=16;
+const pad = n => String(n).padStart(2,"0");
+
+function buildPositions(){
+  const pos={};
+  // Row N (top strip)
+  const NX=60, NY=18;
+  for(let i=1;i<=16;i++) pos["N"+pad(i)]={cx:NX+(i-1)*(BW+BG)+BW/2, cy:NY+BH/2};
+  // Row O
+  const OX=NX+16*(BW+BG)+52;
+  for(let i=1;i<=18;i++) pos["O"+pad(i)]={cx:OX+(i-1)*(BW+BG)+BW/2, cy:NY+BH/2};
+  // Clusters A-M
+  const CLX=60, CLUSTER_W=2*(BW+BG)+CG;
+  const UY=58, LY=330;
+  LETTERS.forEach((l,li)=>{
+    const x0=CLX+li*CLUSTER_W, x1=x0+BW+BG;
+    [16,15,14,13,12,11,10,9].forEach((n,ri)=>{ pos[l+pad(n)]={cx:x0+BW/2, cy:UY+ri*(BH+BG)+BH/2}; });
+    [17,18,19,20,21,22,23,24].forEach((n,ri)=>{ pos[l+pad(n)]={cx:x1+BW/2, cy:UY+ri*(BH+BG)+BH/2}; });
+    [8,7,6,5,4,3,2,1].forEach((n,ri)=>{ pos[l+pad(n)]={cx:x0+BW/2, cy:LY+ri*(BH+BG)+BH/2}; });
+    [25,26,27,28,29,30,31,32].forEach((n,ri)=>{ pos[l+pad(n)]={cx:x1+BW/2, cy:LY+ri*(BH+BG)+BH/2}; });
+  });
+  // P zone
+  const PX=CLX+LETTERS.length*CLUSTER_W+26;
+  const pg=[[[14,15],[13,16],[12,17],[11,18],[10,19]],[[9,20],[8,21],[7,22],[6,23]],[[5,24],[4,25],[3,26],[2,27],[1,28]]];
+  let pr=0;
+  pg.forEach((g,gi)=>{ if(gi>0)pr+=1; g.forEach(([l,r])=>{ const cy=UY+pr*(BH+BG)+BH/2; pos["P"+pad(l)]={cx:PX+BW/2,cy}; pos["P"+pad(r)]={cx:PX+BW+BG+BW/2,cy}; pr++; }); });
+  return pos;
+}
+const POS=buildPositions();
+const CW=Math.max(...Object.values(POS).map(p=>p.cx))+62;
+const CH=Math.max(...Object.values(POS).map(p=>p.cy))+120;
+
+// ─── A* ───────────────────────────────────────────────────────────────────────
+function getAllBooths(){
+  const ids=[];
+  for(let i=1;i<=16;i++) ids.push("N"+pad(i));
+  for(let i=1;i<=18;i++) ids.push("O"+pad(i));
+  LETTERS.forEach(l=>{ for(let n=1;n<=32;n++) ids.push(l+pad(n)); });
+  for(let i=1;i<=28;i++) ids.push("P"+pad(i));
+  return ids;
+}
+const ALL=getAllBooths();
+
+const GRAPH=(()=>{
+  const g={}; ALL.forEach(id=>{g[id]=[];});
+  const T=Math.max(BW,BH)*4.5;
+  for(let i=0;i<ALL.length;i++) for(let j=i+1;j<ALL.length;j++){
+    const a=POS[ALL[i]],b=POS[ALL[j]]; if(!a||!b) continue;
+    const d=Math.sqrt((a.cx-b.cx)**2+(a.cy-b.cy)**2);
+    if(d<T){ g[ALL[i]].push({id:ALL[j],d}); g[ALL[j]].push({id:ALL[i],d}); }
+  }
+  return g;
+})();
+
+function aStar(s,e){
+  if(s===e) return [s];
+  if(!POS[s]||!POS[e]) return [];
+  const open=new Set([s]),from={},g={[s]:0},f={[s]:Math.hypot(POS[s].cx-POS[e].cx,POS[s].cy-POS[e].cy)};
+  while(open.size){
+    let cur=null,lf=Infinity;
+    open.forEach(id=>{ const v=f[id]??Infinity; if(v<lf){lf=v;cur=id;} });
+    if(cur===e){ const p=[e];let n=e; while(from[n]){n=from[n];p.unshift(n);} return p; }
+    open.delete(cur);
+    for(const {id:nb,d} of (GRAPH[cur]||[])){
+      const tg=(g[cur]??Infinity)+d;
+      if(tg<(g[nb]??Infinity)){ from[nb]=cur; g[nb]=tg; f[nb]=tg+Math.hypot(POS[nb].cx-POS[e].cx,POS[nb].cy-POS[e].cy); open.add(nb); }
+    }
+  }
+  return [s,e];
+}
+
+function svgPathStr(ids){
+  if(ids.length<2) return "";
+  const pts=ids.map(id=>POS[id]).filter(Boolean);
+  let d=`M${pts[0].cx},${pts[0].cy}`;
+  for(let i=1;i<pts.length-1;i++){
+    const m={cx:(pts[i].cx+pts[i+1].cx)/2,cy:(pts[i].cy+pts[i+1].cy)/2};
+    d+=` Q${pts[i].cx},${pts[i].cy} ${m.cx},${m.cy}`;
+  }
+  return d+` L${pts[pts.length-1].cx},${pts[pts.length-1].cy}`;
+}
+
+// ─── SEARCH TRACKING (top 10 most searched fandoms) ──────────────────────────
+function getSearchCounts() {
+  try { return JSON.parse(localStorage.getItem("cp6_search_counts") || "{}"); }
+  catch { return {}; }
+}
+function incrementSearch(fandom) {
+  const counts = getSearchCounts();
+  counts[fandom] = (counts[fandom] || 0) + 1;
+  localStorage.setItem("cp6_search_counts", JSON.stringify(counts));
+}
+function getTopFandoms(fandoms, n=10) {
+  const counts = getSearchCounts();
+  return [...fandoms].sort((a,b) => (counts[b]||0) - (counts[a]||0)).slice(0,n);
+}
+
+// ─── BUILD TENANTS from users ─────────────────────────────────────────────────
+function buildTenants(users) {
+  const tenants = {};
+  users.forEach(u => {
+    u.booths.forEach(b => {
+      const catalog = JSON.parse(localStorage.getItem(`cp6_catalog_${u.id}`) || "[]");
+      const prices  = JSON.parse(localStorage.getItem(`cp6_prices_${u.id}`) || "[]");
+      tenants[b] = { userId: u.id, user: u.name, fandoms: u.fandoms, catalog, prices };
+    });
+  });
+  return tenants;
+}
+
+// ─── BOOTH RECT ───────────────────────────────────────────────────────────────
+function BoothRect({id, state, onClick}){
+  const p=POS[id]; if(!p) return null;
+  const C={
+    empty:    {fill:"#f9fafb",stroke:"#e5e7eb",text:"#d1d5db"},
+    occupied: {fill:"#f5f3ff",stroke:"#c4b5fd",text:"#7c3aed"},
+    matched:  {fill:"#7c3aed",stroke:"#5b21b6",text:"#fff"},
+    selected: {fill:"#ddd6fe",stroke:"#7c3aed",text:"#5b21b6"},
+    pathStart:{fill:"#10b981",stroke:"#059669",text:"#fff"},
+    pathEnd:  {fill:"#ef4444",stroke:"#dc2626",text:"#fff"},
+    onPath:   {fill:"#f59e0b",stroke:"#d97706",text:"#fff"},
+  }[state]||{fill:"#f9fafb",stroke:"#e5e7eb",text:"#d1d5db"};
+  return (
+    <g onClick={()=>onClick(id)} style={{cursor:"pointer"}} className="group">
+      <rect x={p.cx-BW/2} y={p.cy-BH/2} width={BW} height={BH} rx={3}
+        fill={C.fill} stroke={C.stroke} strokeWidth={0.8}
+        className="transition-colors duration-150 group-hover:opacity-70"/>
+      <text x={p.cx} y={p.cy} textAnchor="middle" dominantBaseline="central"
+        fontSize={6.5} fontWeight={600} fill={C.text}
+        style={{userSelect:"none",pointerEvents:"none"}}>{id}</text>
+    </g>
+  );
+}
+
+// ─── BOOTH DETAIL MODAL ───────────────────────────────────────────────────────
+function BoothModal({boothId, tenant, onClose, onNavigate}){
+  const [idx,setIdx]=useState(0);
+  const cat=tenant?.catalog||[], prices=tenant?.prices||[];
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"/>
+      <div className="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[88vh] overflow-y-auto"
+        onClick={e=>e.stopPropagation()}>
+        <div className="flex justify-center pt-3 pb-1 sm:hidden"><div className="w-10 h-1 bg-gray-200 rounded-full"/></div>
+        <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-base font-bold text-gray-900">Booth {boothId}</span>
+              <span className="text-xs px-2 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded-full">{tenant?.user}</span>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {tenant?.fandoms.map(f=><span key={f} className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">{f}</span>)}
+            </div>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 shrink-0 ml-2">✕</button>
+        </div>
+        <div className="px-5 pt-3">
+          <button onClick={()=>{onNavigate(boothId);onClose();}}
+            className="w-full py-2 bg-violet-500 hover:bg-violet-600 text-white text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-2">
+            🗺️ Tampilkan Rute ke Booth Ini
+          </button>
+        </div>
+        <div className="px-5 pt-4">
+          <h3 className="text-xs font-semibold text-gray-700 mb-2">Katalog</h3>
+          {cat.length===0
+            ? <div className="text-center py-8 bg-gray-50 rounded-xl"><div className="text-2xl">🖼️</div><p className="text-[10px] text-gray-300 mt-1">Belum ada katalog</p></div>
+            : <div>
+                <div className="rounded-xl overflow-hidden bg-gray-100 aspect-square mb-2">
+                  <img src={cat[idx]?.url||cat[idx]} alt="catalog" className="w-full h-full object-cover"/>
+                </div>
+                {cat.length>1&&(
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {cat.map((img,i)=>(
+                      <button key={i} onClick={()=>setIdx(i)}
+                        className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${i===idx?"border-violet-500":"border-transparent opacity-60"}`}>
+                        <img src={img?.url||img} alt="" className="w-full h-full object-cover"/>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+          }
+        </div>
+        <div className="px-5 pt-4 pb-6">
+          <h3 className="text-xs font-semibold text-gray-700 mb-2">Daftar Harga</h3>
+          {prices.length===0
+            ? <div className="text-center py-6 bg-gray-50 rounded-xl"><p className="text-[10px] text-gray-300">Belum ada harga</p></div>
+            : <table className="w-full text-xs">
+                <thead><tr className="border-b border-gray-100">
+                  <th className="text-left py-1.5 text-gray-400 font-medium">Item</th>
+                  <th className="text-right py-1.5 text-gray-400 font-medium">Harga</th>
+                </tr></thead>
+                <tbody>
+                  {prices.map((p,i)=>(
+                    <tr key={i} className="border-b border-gray-50">
+                      <td className="py-2 text-gray-700">{p.item}</td>
+                      <td className="py-2 text-right font-semibold text-gray-800">Rp {parseInt(p.price).toLocaleString("id-ID")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN FLOORMAP ────────────────────────────────────────────────────────────
+export default function FloorMap(){
+  const [users, setUsers]       = useState([]);
+  const [fandoms, setFandoms]   = useState(DEFAULT_FANDOMS);
+  const [tenants, setTenants]   = useState({});
+  const [search, setSearch]     = useState("");
+  const [selFandom, setSelFandom] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSugg, setShowSugg] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [modalId, setModalId]   = useState(null);
+  const [tab, setTab]           = useState("search");
+  const [pathFrom, setPathFrom] = useState("");
+  const [pathTo, setPathTo]     = useState("");
+  const [path, setPath]         = useState([]);
+  const [showPath, setShowPath] = useState(false);
+
+  const [tx, setTx] = useState(0);
+  const [ty, setTy] = useState(0);
+  const [scale, setScale] = useState(1);
+
+  const containerRef = useRef(null);
+  const lastTouch    = useRef(null);
+  const lastDist     = useRef(null);
+  const pinching     = useRef(false);
+  const clickTimer   = useRef(null);
+  const searchRef    = useRef(null);
+
+  // Load data from localStorage
+  useEffect(()=>{
+    const u = getUsers();
+    setUsers(u);
+    setFandoms(getFandoms());
+    setTenants(buildTenants(u));
+  },[]);
+
+  // Suggestions: filter fandoms by search text, ranked by popularity
+  useEffect(()=>{
+    if(!search.trim()){ setSuggestions([]); return; }
+    const q = search.toLowerCase();
+    const matched = fandoms.filter(f => f.toLowerCase().includes(q) && f.toLowerCase()!==q);
+    const counts  = getSearchCounts();
+    const ranked  = matched.sort((a,b)=>(counts[b]||0)-(counts[a]||0)).slice(0,10);
+    setSuggestions(ranked);
+  },[search, fandoms]);
+
+  const searchTerm = selFandom || search;
+  const isMatch = useCallback((id)=>{
+    if(!searchTerm) return false;
+    const t=tenants[id]; if(!t) return false;
+    return t.fandoms.some(f=>f.toLowerCase().includes(searchTerm.toLowerCase()));
+  },[searchTerm,tenants]);
+  const matchedSet = useMemo(()=>new Set(ALL.filter(isMatch)),[isMatch]);
+  const pathSet    = useMemo(()=>new Set(path),[path]);
+  const topFandoms = useMemo(()=>getTopFandoms(fandoms,10),[fandoms]);
+
+  function clamp(x,y,s,W,H){
+    const mw=CW*s, mh=CH*s;
+    return {
+      x: mw<W ? (W-mw)/2 : Math.min(0,Math.max(W-mw, x)),
+      y: mh<H ? (H-mh)/2 : Math.min(0,Math.max(H-mh, y)),
+    };
+  }
+
+  useEffect(()=>{
+    const el=containerRef.current; if(!el) return;
+    const s=Math.min(el.clientWidth/CW, el.clientHeight/CH, 1);
+    setScale(s);
+    const c=clamp(0,0,s,el.clientWidth,el.clientHeight);
+    setTx(c.x); setTy(c.y);
+  },[]);
+
+  function resetView(){
+    const el=containerRef.current; if(!el) return;
+    const s=Math.min(el.clientWidth/CW, el.clientHeight/CH, 1);
+    setScale(s);
+    const c=clamp(0,0,s,el.clientWidth,el.clientHeight);
+    setTx(c.x); setTy(c.y);
+  }
+
+  useEffect(()=>{
+    const el=containerRef.current; if(!el) return;
+    const gW=()=>el.clientWidth, gH=()=>el.clientHeight;
+    const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+    const mid=t=>({x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2});
+    const onTS=e=>{
+      if(e.touches.length===2){ pinching.current=true; lastDist.current=dist(e.touches); lastTouch.current=mid(e.touches); e.preventDefault(); }
+      else { pinching.current=false; lastTouch.current={x:e.touches[0].clientX,y:e.touches[0].clientY}; }
+    };
+    const onTM=e=>{
+      if(e.touches.length===2){
+        e.preventDefault();
+        const d=dist(e.touches),m=mid(e.touches),ds=d/(lastDist.current||d);
+        setScale(ps=>{
+          const ns=Math.min(Math.max(ps*ds,0.3),5);
+          const dx=m.x-(lastTouch.current?.x||m.x), dy=m.y-(lastTouch.current?.y||m.y);
+          setTx(px=>{ const c=clamp(px+dx,0,ns,gW(),gH()); return c.x; });
+          setTy(py=>{ const c=clamp(0,py+dy,ns,gW(),gH()); return c.y; });
+          return ns;
+        });
+        lastDist.current=d; lastTouch.current=m;
+      } else if(e.touches.length===1&&!pinching.current){
+        const dx=e.touches[0].clientX-(lastTouch.current?.x||0);
+        const dy=e.touches[0].clientY-(lastTouch.current?.y||0);
+        setTx(px=>clamp(px+dx,0,scale,gW(),gH()).x);
+        setTy(py=>clamp(0,py+dy,scale,gW(),gH()).y);
+        lastTouch.current={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      }
+    };
+    const onTE=()=>{ pinching.current=false; };
+    const onW=e=>{
+      e.preventDefault();
+      const rect=el.getBoundingClientRect();
+      const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+      const ds=e.deltaY<0?1.12:0.9;
+      setScale(ps=>{
+        const ns=Math.min(Math.max(ps*ds,0.3),5);
+        // zoom toward cursor
+        const newTx=mx-(mx-tx)*(ns/ps);
+        const newTy=my-(my-ty)*(ns/ps);
+        const c=clamp(newTx,newTy,ns,gW(),gH());
+        setTx(c.x); setTy(c.y);
+        return ns;
+      });
+    };
+    el.addEventListener("touchstart",onTS,{passive:false});
+    el.addEventListener("touchmove", onTM,{passive:false});
+    el.addEventListener("touchend",  onTE);
+    el.addEventListener("wheel",     onW, {passive:false});
+    return()=>{ el.removeEventListener("touchstart",onTS); el.removeEventListener("touchmove",onTM); el.removeEventListener("touchend",onTE); el.removeEventListener("wheel",onW); };
+  },[scale,tx,ty]);
+
+  function handleBoothClick(id){
+    if(tab==="path"){
+      if(!pathFrom){ setPathFrom(id); return; }
+      if(!pathTo&&id!==pathFrom){ setPathTo(id); return; }
+    }
+    if(clickTimer.current){
+      clearTimeout(clickTimer.current); clickTimer.current=null;
+      if(tenants[id]){ setModalId(id); setSelectedId(null); }
+    } else {
+      clickTimer.current=setTimeout(()=>{ clickTimer.current=null; setSelectedId(prev=>prev===id?null:id); },260);
+    }
+  }
+
+  function handleFindPath(){
+    if(!pathFrom||!pathTo) return;
+    const r=aStar(pathFrom,pathTo); setPath(r); setShowPath(true);
+  }
+  function resetPath(){ setPathFrom(""); setPathTo(""); setPath([]); setShowPath(false); }
+
+  function getState(id){
+    if(showPath){
+      if(id===path[0]) return "pathStart";
+      if(id===path[path.length-1]) return "pathEnd";
+      if(pathSet.has(id)) return "onPath";
+    }
+    if(matchedSet.has(id)) return "matched";
+    if(id===selectedId) return "selected";
+    if(tenants[id]) return "occupied";
+    return "empty";
+  }
+
+  function selectSuggestion(f){
+    incrementSearch(f);
+    setSelFandom(f);
+    setSearch(f);
+    setSuggestions([]);
+    setShowSugg(false);
+  }
+
+  // Zone layout matching the actual PDF floormap
+  const ZY=CH-100;
+  const ZoneRects = [
+    // Comipara Guild Area (left-bottom)
+    {label:"Comipara\nGuild Area", x:40, y:ZY, w:220, h:50, f:"#EFF6FF",s:"#BFDBFE",t:"#1E40AF"},
+    // Comic Class Area (center-bottom)
+    {label:"Comic\nClass Area", x:280, y:ZY, w:120, h:50, f:"#EFF6FF",s:"#BFDBFE",t:"#1E40AF"},
+    // Visitor Storage
+    {label:"Visitor\nStorage", x:420, y:ZY, w:90, h:50, f:"#F9FAFB",s:"#E5E7EB",t:"#6B7280"},
+    // Community Zone
+    {label:"Community\nZone", x:540, y:ZY, w:200, h:50, f:"#FFF7ED",s:"#FED7AA",t:"#7C2D12"},
+    // Tabletop Area
+    {label:"Tabletop\nArea", x:760, y:ZY+10, w:100, h:35, f:"#F9FAFB",s:"#E5E7EB",t:"#6B7280"},
+    // Stage (right side)
+    {label:"Stage", x:CW-90, y:200, w:70, h:100, f:"#FFFBEB",s:"#FDE68A",t:"#92400E"},
+    // Creative Zone
+    {label:"Creative\nZone", x:CW-180, y:58, w:80, h:200, f:"#F0FDF4",s:"#BBF7D0",t:"#14532D"},
+    // Exhibitor Zone
+    {label:"Exhibitor\nZone", x:CW-180, y:270, w:80, h:80, f:"#FDF2F8",s:"#F9A8D4",t:"#831843"},
+    // Cosplay Reg Zone
+    {label:"Cosplay\nReg. Zone", x:CW-90, y:320, w:70, h:80, f:"#FDF2F8",s:"#F9A8D4",t:"#831843"},
+  ];
+  // Special zones at bottom
+  const SpecialZones = [
+    {label:"Photobooth", x:40, y:ZY-60, w:50, h:50, f:"#FEF3C7",s:"#FCD34D",t:"#92400E"},
+    {label:"Information", x:200, y:ZY+15, w:55, h:20, f:"#DBEAFE",s:"#93C5FD",t:"#1E40AF"},
+    {label:"Item Shop", x:260, y:ZY+25, w:45, h:20, f:"#DBEAFE",s:"#93C5FD",t:"#1E40AF"},
+    {label:"Guild Admin", x:248, y:ZY+5,  w:40, h:18, f:"#EDE9FE",s:"#C4B5FD",t:"#5B21B6"},
+    {label:"Quest Board", x:155, y:ZY-12, w:70, h:10, f:"#FEF3C7",s:"#FCD34D",t:"#92400E"},
+    {label:"Charging\nStation", x:640, y:ZY+20, w:65, h:25, f:"#DCFCE7",s:"#86EFAC",t:"#14532D"},
+    {label:"Ticket\nBox", x:418, y:ZY+52, w:55, h:25, f:"#FEE2E2",s:"#FCA5A5",t:"#991B1B"},
+  ];
+
+  const sp=showPath&&path.length>=2?svgPathStr(path):"";
+
+  return (
+    <div className="flex flex-col bg-gray-50 overflow-hidden" style={{height:"100dvh"}}>
+      {/* HEADER */}
+      <div className="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-sm z-20">
+        <div>
+          <h1 className="text-sm font-bold text-gray-900 tracking-tight">Comipara 6</h1>
+          <p className="text-[10px] text-gray-400">Tap 1× = pilih · Tap 2× = katalog & harga</p>
+        </div>
+        <button onClick={resetView} className="text-[10px] px-2.5 py-1 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 active:scale-95 transition-transform">
+          Reset View
+        </button>
+      </div>
+
+      {/* CONTROLS */}
+      <div className="bg-white border-b border-gray-100 px-3 py-2 shrink-0 z-10 space-y-2">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 w-fit">
+          {[["search","🔍 Fandom"],["path","🗺️ Jalur"]].map(([t,l])=>(
+            <button key={t} onClick={()=>{setTab(t);if(t==="search")resetPath();}}
+              className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-all ${tab===t?"bg-white text-gray-900 shadow-sm":"text-gray-500"}`}>{l}</button>
+          ))}
+        </div>
+
+        {tab==="search"&&(
+          <div className="space-y-1.5">
+            <div className="relative">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    ref={searchRef}
+                    value={search}
+                    onChange={e=>{setSearch(e.target.value);setSelFandom(null);setShowSugg(true);}}
+                    onFocus={()=>setShowSugg(true)}
+                    onBlur={()=>setTimeout(()=>setShowSugg(false),150)}
+                    placeholder="Ketik fandom... (e.g. ark → Arknights)"
+                    className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-violet-400"
+                  />
+                  {/* Suggestions dropdown */}
+                  {showSugg && suggestions.length>0 && (
+                    <div className="absolute top-full left-0 right-0 mt-0.5 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                      {suggestions.map((f,i)=>(
+                        <button key={f} onMouseDown={()=>selectSuggestion(f)}
+                          className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-violet-50 hover:text-violet-700 flex items-center gap-2 border-b border-gray-50 last:border-0">
+                          <span className="text-gray-300">🔍</span>
+                          <span>{f}</span>
+                          {(getSearchCounts()[f]||0)>0&&<span className="ml-auto text-[9px] text-gray-300">{getSearchCounts()[f]}×</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button onClick={()=>{setSearch("");setSelFandom(null);setSelectedId(null);setSuggestions([]);}}
+                  className="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50">Reset</button>
+              </div>
+            </div>
+            {/* Top popular fandoms */}
+            <div className="flex flex-wrap gap-1 max-h-14 overflow-y-auto">
+              {topFandoms.map(f=>(
+                <button key={f} onClick={()=>{selectSuggestion(f);setSelFandom(f);}}
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all ${(selFandom===f||search===f)?"bg-violet-500 border-violet-500 text-white":"bg-white border-gray-200 text-gray-500 hover:border-violet-300"}`}>{f}</button>
+              ))}
+            </div>
+            {searchTerm&&<p className="text-[10px] text-gray-500">{matchedSet.size>0?<><span className="text-violet-600 font-semibold">{matchedSet.size} booth</span> untuk "{searchTerm}"</>:<span className="text-rose-500">Tidak ada hasil</span>}</p>}
+          </div>
+        )}
+
+        {tab==="path"&&(
+          <div className="space-y-1.5">
+            <p className="text-[10px] text-gray-400">Klik 2 booth di peta atau ketik ID-nya</p>
+            <div className="flex gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-1 min-w-[110px]">
+                <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[8px] font-bold flex items-center justify-center shrink-0">A</span>
+                <input value={pathFrom} onChange={e=>setPathFrom(e.target.value.toUpperCase())} placeholder="Dari (e.g. A01)"
+                  className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-400"/>
+              </div>
+              <div className="flex items-center gap-1.5 flex-1 min-w-[110px]">
+                <span className="w-4 h-4 rounded-full bg-rose-500 text-white text-[8px] font-bold flex items-center justify-center shrink-0">B</span>
+                <input value={pathTo} onChange={e=>setPathTo(e.target.value.toUpperCase())} placeholder="Ke (e.g. M32)"
+                  className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-rose-400"/>
+              </div>
+              <button onClick={handleFindPath} disabled={!pathFrom||!pathTo}
+                className="px-3 py-1 text-xs font-semibold bg-violet-500 text-white rounded-lg hover:bg-violet-600 disabled:opacity-40 transition-colors">Cari</button>
+              <button onClick={resetPath} className="px-2.5 py-1 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50">Reset</button>
+            </div>
+            {showPath&&path.length>0&&(
+              <div className="flex gap-1 flex-wrap items-center">
+                <span className="text-[10px] text-gray-400">{path.length} titik:</span>
+                <div className="flex gap-1 flex-wrap max-h-8 overflow-hidden">
+                  {path.map((id,i)=>(
+                    <span key={id} className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${i===0?"bg-emerald-100 text-emerald-700":i===path.length-1?"bg-rose-100 text-rose-700":"bg-amber-100 text-amber-700"}`}>{id}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* LEGEND */}
+      <div className="flex gap-3 px-3 py-1.5 bg-white border-b border-gray-50 shrink-0 overflow-x-auto">
+        {[
+          {c:"bg-violet-100 border border-violet-300",l:"Terisi"},
+          {c:"bg-violet-500",l:"Hasil cari",t:"text-white"},
+          {c:"bg-violet-200 border border-violet-400",l:"Dipilih"},
+          {c:"bg-emerald-500",l:"Titik A",t:"text-white"},
+          {c:"bg-rose-500",l:"Titik B",t:"text-white"},
+          {c:"bg-amber-400",l:"Jalur",t:"text-white"},
+        ].map(({c,l,t})=>(
+          <div key={l} className="flex items-center gap-1 shrink-0">
+            <div className={`w-4 h-3 rounded ${c} ${t||""}`}/>
+            <span className="text-[9px] text-gray-500 whitespace-nowrap">{l}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* SVG MAP */}
+      <div ref={containerRef} className="flex-1 overflow-hidden relative select-none touch-none bg-gray-100" style={{minHeight:0}}>
+        <svg width="100%" height="100%" style={{display:"block"}}>
+          <g transform={`translate(${tx},${ty}) scale(${scale})`}>
+            <rect x={0} y={0} width={CW} height={CH} fill="#ffffff" rx={6}/>
+
+            {/* Section labels */}
+            <text x={62} y={13} fontSize={7} fill="#c4b5fd" fontWeight={700} letterSpacing={1}>BARIS N & O</text>
+            <text x={62} y={52} fontSize={7} fill="#c4b5fd" fontWeight={700} letterSpacing={1}>COMIC HALL</text>
+            <line x1={50} y1={316} x2={CW-200} y2={316} stroke="#e5e7eb" strokeWidth={1} strokeDasharray="6 4"/>
+            <text x={(CW-200)/2} y={326} textAnchor="middle" fontSize={6.5} fill="#d1d5db" fontWeight={700} letterSpacing={3}>CREATOR MERCHANT AREA</text>
+
+            {/* Zone boxes matching actual floormap */}
+            {ZoneRects.map(({label,x,y,w,h,f,s,t},i)=>{
+              const lines=label.split("\n");
+              return <g key={i}>
+                <rect x={x} y={y} width={w} height={h} rx={4} fill={f} stroke={s} strokeWidth={0.8}/>
+                {lines.map((line,li)=><text key={li} x={x+w/2} y={y+h/2+(li-( lines.length-1)/2)*10} textAnchor="middle" dominantBaseline="central" fontSize={6} fill={t} fontWeight={600}>{line}</text>)}
+              </g>;
+            })}
+
+            {/* Special facility zones */}
+            {SpecialZones.map(({label,x,y,w,h,f,s,t},i)=>{
+              const lines=label.split("\n");
+              return <g key={"sz"+i}>
+                <rect x={x} y={y} width={w} height={h} rx={3} fill={f} stroke={s} strokeWidth={0.7}/>
+                {lines.map((line,li)=><text key={li} x={x+w/2} y={y+h/2+(li-(lines.length-1)/2)*9} textAnchor="middle" dominantBaseline="central" fontSize={5} fill={t} fontWeight={600}>{line}</text>)}
+              </g>;
+            })}
+
+            {/* Entry/exit labels */}
+            <text x={CW/2-80} y={CH-4} fontSize={7} fill="#9ca3af" fontWeight={700}>▲ ENTRY — Hall A / Hall B</text>
+            <text x={CW-60} y={CH-4} fontSize={7} fill="#9ca3af" fontWeight={700} textAnchor="end">Hall C →</text>
+
+            {/* Booths */}
+            {ALL.map(id=><BoothRect key={id} id={id} state={getState(id)} onClick={handleBoothClick}/>)}
+
+            {/* Path line */}
+            {showPath&&sp&&(<>
+              <path d={sp} fill="none" stroke="#f59e0b" strokeWidth={10} strokeOpacity={0.12} strokeLinecap="round"/>
+              <path d={sp} fill="none" stroke="#f59e0b" strokeWidth={2.5} strokeLinecap="round" strokeDasharray="8 4"
+                style={{animation:"dashAnim 0.8s linear infinite"}}/>
+              {POS[path[0]]&&<circle cx={POS[path[0]].cx} cy={POS[path[0]].cy} r={7} fill="#10b981" stroke="#fff" strokeWidth={2}/>}
+              {POS[path[path.length-1]]&&<circle cx={POS[path[path.length-1]].cx} cy={POS[path[path.length-1]].cy} r={7} fill="#ef4444" stroke="#fff" strokeWidth={2}/>}
+            </>)}
+          </g>
+        </svg>
+        <style>{`@keyframes dashAnim{to{stroke-dashoffset:-24}}`}</style>
+      </div>
+
+      {/* BOTTOM PANEL: single click */}
+      {selectedId&&!modalId&&(
+        <div className="shrink-0 bg-white border-t border-gray-100 px-4 py-3 z-20 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-sm font-bold text-gray-900">Booth {selectedId}</span>
+              {tenants[selectedId]
+                ?<span className="ml-2 text-xs text-gray-400">{tenants[selectedId].user}</span>
+                :<span className="ml-2 text-xs text-gray-300">Belum terisi</span>}
+            </div>
+            <div className="flex gap-2 items-center">
+              {tenants[selectedId]&&(
+                <button onClick={()=>{setModalId(selectedId);setSelectedId(null);}}
+                  className="px-3 py-1.5 bg-violet-500 text-white text-xs font-semibold rounded-lg hover:bg-violet-600 transition-colors">
+                  Lihat Detail
+                </button>
+              )}
+              <button onClick={()=>setSelectedId(null)} className="text-gray-300 hover:text-gray-500">✕</button>
+            </div>
+          </div>
+          {tenants[selectedId]&&(
+            <div className="flex gap-1 mt-1.5 flex-wrap">
+              {tenants[selectedId].fandoms.map(f=>(
+                <span key={f} className="text-[10px] px-2 py-0.5 bg-violet-50 border border-violet-200 text-violet-600 rounded-full">{f}</span>
+              ))}
+            </div>
+          )}
+          <p className="text-[9px] text-gray-300 mt-1">Tap 2× untuk lihat katalog & harga</p>
+        </div>
+      )}
+
+      {/* MODAL: double click */}
+      {modalId&&tenants[modalId]&&(
+        <BoothModal boothId={modalId} tenant={tenants[modalId]} onClose={()=>setModalId(null)}
+          onNavigate={id=>{setTab("path");setPathTo(id);setModalId(null);}}/>
+      )}
+    </div>
+  );
+}
