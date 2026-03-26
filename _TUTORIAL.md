@@ -52,15 +52,23 @@ Buka Extensions (Ctrl+Shift+X), install:
 
 ### Step 4: Buat project baru
 ```bash
-git clone <url-repo>   # atau git pull
+cd Desktop
+npx create-next-app@latest comipara6-map
+```
+
+Jawab pertanyaan:
+```
+TypeScript?          → No
+ESLint?              → Yes
+Tailwind CSS?        → Yes
+src/ directory?      → No
+App Router?          → Yes
+Import alias?        → No
+```
+
+```bash
 cd comipara6-map
-
-open powershell as admin diluar dari vs code
-npm install babel-plugin-react-compiler
-npm install
-
-kembali ke vs code
-npm run dev
+code .
 ```
 
 ---
