@@ -1,32 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-
-// ─── SHARED STORAGE HELPERS ───────────────────────────────────────────────────
-const DEFAULT_FANDOMS = [
-  "Genshin Impact","Honkai Star Rail","Blue Archive","Hololive","Nijisanji",
-  "Attack on Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Naruto",
-  "BTS","ENHYPEN","SEVENTEEN","Stray Kids","NewJeans",
-  "Valorant","League of Legends","Minecraft","Elden Ring","Final Fantasy",
-  "My Hero Academia","Spy x Family","Chainsaw Man","Frieren","Bocchi the Rock",
-  "Vtuber Original","Original Art","Webtoon","Light Novel","Cosplay",
-  "Arknights","Arkham Knight","Honkai Impact","Gachiakuta",
-];
-
-const INITIAL_USERS = [
-  { id:1, name:"Kusuma",    email:"kusuma@mail.com",   password:"user123",  role:"user",        booths:["A16"],        fandoms:["Genshin Impact","Original Art"] },
-  { id:2, name:"Bagas",     email:"bagas@mail.com",    password:"user123",  role:"user",        booths:["A17"],        fandoms:["Attack on Titan"] },
-  { id:3, name:"Wijaya",    email:"wijaya@mail.com",   password:"user123",  role:"user",        booths:["D16","D01"],  fandoms:["Naruto","One Piece"] },
-  { id:4, name:"Admin",     email:"admin@comipara.com",password:"admin123", role:"admin",       booths:[],             fandoms:[] },
-  { id:5, name:"SuperAdmin",email:"super@comipara.com",password:"super123", role:"super_admin", booths:[],             fandoms:[] },
-];
-
-function getUsers()   { try { return JSON.parse(localStorage.getItem("cp6_users")||"null") || INITIAL_USERS; } catch { return INITIAL_USERS; } }
-function saveUsers(u) { localStorage.setItem("cp6_users", JSON.stringify(u)); }
-function getFandoms()   { try { return JSON.parse(localStorage.getItem("cp6_fandoms")||"null") || DEFAULT_FANDOMS; } catch { return DEFAULT_FANDOMS; } }
-function saveFandoms(f) { localStorage.setItem("cp6_fandoms", JSON.stringify(f)); }
-
-function getAllAssignedBooths(users) { return users.flatMap(u => u.booths); }
+import { compressImageFile } from "@/lib/imageUtils";
 
 // ─── BADGE ────────────────────────────────────────────────────────────────────
 function Badge({ role }) {
@@ -71,7 +46,6 @@ function Toast({ msg, type }) {
 }
 
 // ─── FANDOM PICKER (dengan search) ───────────────────────────────────────────
-// Dipakai di EditUserForm, AddUserForm, dan tab Fandom user biasa
 function FandomPicker({ fandoms, selected, onChange }) {
   const [search, setSearch] = useState("");
 
@@ -161,13 +135,14 @@ export default function Dashboard() {
   const [me, setMe]               = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [users, setUsers]         = useState([]);
-  const [fandoms, setFandoms]     = useState(DEFAULT_FANDOMS);
+  const [fandoms, setFandoms]     = useState([]);
   const [modal, setModal]         = useState(null);
   const [editTarget, setEditTarget] = useState(null);
   const [catalog, setCatalog]     = useState([]);
   const [prices, setPrices]       = useState([]);
   const [newPrice, setNewPrice]   = useState({ item:"", price:"" });
   const [toast, setToast]         = useState({msg:"",type:"success"});
+  const [uploading, setUploading] = useState(false);
   const fileRef  = useRef();
   const excelRef = useRef();
 
@@ -181,14 +156,33 @@ export default function Dashboard() {
     if(!stored){ router.push("/cp6-staff"); return; }
     const user = JSON.parse(stored);
     setMe(user);
-    const allUsers = getUsers();
-    setUsers(allUsers);
-    setFandoms(getFandoms());
-    const found = allUsers.find(u=>u.email===user.email);
-    if(found){
-      setCatalog(JSON.parse(localStorage.getItem(`cp6_catalog_${found.id}`)||"[]"));
-      setPrices(JSON.parse(localStorage.getItem(`cp6_prices_${found.id}`)||"[]"));
+
+    // Load data from API
+    async function loadData(){
+      try{
+        const [usersRes, fandomsRes] = await Promise.all([
+          fetch("/api/users?auth=1"),
+          fetch("/api/fandoms"),
+        ]);
+        const allUsers = await usersRes.json();
+        const allFandoms = await fandomsRes.json();
+        setUsers(allUsers);
+        setFandoms(allFandoms);
+
+        const found = allUsers.find(u=>u.email===user.email);
+        if(found){
+          const [catRes, priceRes] = await Promise.all([
+            fetch(`/api/catalog?userId=${found.id}`),
+            fetch(`/api/prices?userId=${found.id}`),
+          ]);
+          setCatalog(await catRes.json());
+          setPrices(await priceRes.json());
+        }
+      }catch(err){
+        console.error("Failed to load dashboard data:", err);
+      }
     }
+    loadData();
   },[]);
 
   function logout() {
@@ -197,9 +191,19 @@ export default function Dashboard() {
     router.push("/cp6-staff");
   }
 
-  function persistUsers(updated) {
+  async function persistUsers(updated) {
     setUsers(updated);
-    saveUsers(updated);
+    // Sync to server
+    try{
+      // We do a full replace via PUT for simplicity
+      for(const u of updated){
+        await fetch("/api/users", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(u),
+        });
+      }
+    }catch(err){ console.error("Failed to sync users:", err); }
   }
 
   if(!me) return (
@@ -212,81 +216,123 @@ export default function Dashboard() {
   const isSuperAdmin = me.role==="super_admin";
   const myData       = users.find(u=>u.email===me.email);
 
-  // ── Catalog ───────────────────────────────────────────────────────────────
-  function handleCatalogUpload(e) {
+  // ── Catalog (with image compression) ──────────────────────────────────────
+  async function handleCatalogUpload(e) {
     const files = Array.from(e.target.files);
-    files.forEach(file=>{
-      const reader = new FileReader();
-      reader.onload = ev=>{
-        const item = { id:Date.now()+Math.random(), url:ev.target.result, name:file.name };
-        setCatalog(prev=>{
-          const updated=[...prev,item];
-          if(myData) localStorage.setItem(`cp6_catalog_${myData.id}`,JSON.stringify(updated));
-          return updated;
-        });
-      };
-      reader.readAsDataURL(file);
-    });
+    if(!files.length || !myData) return;
+    setUploading(true);
+
+    try{
+      const formData = new FormData();
+      formData.append("userId", String(myData.id));
+
+      // Compress each image client-side before upload
+      for(const file of files){
+        const compressed = await compressImageFile(file);
+        formData.append("files", compressed);
+      }
+
+      const res = await fetch("/api/catalog", { method: "POST", body: formData });
+      const updated = await res.json();
+      setCatalog(updated);
+      showToast(`${files.length} gambar berhasil diupload`);
+    }catch(err){
+      console.error("Upload failed:", err);
+      showToast("Upload gagal", "error");
+    }
+    setUploading(false);
     e.target.value="";
   }
 
-  function deleteCatalog(id) {
-    setCatalog(prev=>{
-      const updated=prev.filter(c=>c.id!==id);
-      if(myData) localStorage.setItem(`cp6_catalog_${myData.id}`,JSON.stringify(updated));
-      return updated;
-    });
+  async function deleteCatalog(item) {
+    if(!myData) return;
+    try{
+      const res = await fetch("/api/catalog", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: myData.id, catalogId: item.id, url: item.url }),
+      });
+      const updated = await res.json();
+      setCatalog(updated);
+      showToast("Gambar dihapus");
+    }catch(err){
+      showToast("Gagal menghapus", "error");
+    }
   }
 
   // ── Pricelist ─────────────────────────────────────────────────────────────
-  function addPrice() {
-    if(!newPrice.item||!newPrice.price) return;
-    const updated=[...prices,{id:Date.now(),...newPrice}];
-    setPrices(updated);
-    if(myData) localStorage.setItem(`cp6_prices_${myData.id}`,JSON.stringify(updated));
-    setNewPrice({item:"",price:""});
+  async function addPrice() {
+    if(!newPrice.item||!newPrice.price||!myData) return;
+    try{
+      const res = await fetch("/api/prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: myData.id, ...newPrice }),
+      });
+      const updated = await res.json();
+      setPrices(updated);
+      setNewPrice({item:"",price:""});
+    }catch(err){ showToast("Gagal menambah harga", "error"); }
   }
-  function deletePrice(id) {
-    const updated=prices.filter(p=>p.id!==id);
-    setPrices(updated);
-    if(myData) localStorage.setItem(`cp6_prices_${myData.id}`,JSON.stringify(updated));
+
+  async function deletePrice(priceId) {
+    if(!myData) return;
+    try{
+      const res = await fetch("/api/prices", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: myData.id, priceId }),
+      });
+      const updated = await res.json();
+      setPrices(updated);
+      showToast("Harga dihapus");
+    }catch(err){ showToast("Gagal menghapus", "error"); }
   }
 
   // ── User self-select fandom ───────────────────────────────────────────────
-  function saveMyFandoms(newFandoms) {
+  async function saveMyFandoms(newFandoms) {
     if(!myData) return;
     const updated = users.map(u=>u.id===myData.id ? {...u, fandoms:newFandoms} : u);
-    persistUsers(updated);
+    await persistUsers(updated);
     showToast("Fandom berhasil disimpan");
   }
 
   // ── Admin: user management ────────────────────────────────────────────────
-  function saveUser(updated) {
-    const newUsers = users.map(u=>u.id===updated.id?updated:u);
-    persistUsers(newUsers);
+  async function saveUser(updatedUser) {
+    const newUsers = users.map(u=>u.id===updatedUser.id?updatedUser:u);
+    await persistUsers(newUsers);
     setModal(null);
     showToast("User berhasil diperbarui");
   }
 
-  function deleteUser(id) {
+  async function deleteUser(id) {
     if(!isSuperAdmin) return;
-    persistUsers(users.filter(u=>u.id!==id));
-    showToast("User dihapus");
+    try{
+      await fetch(`/api/users?id=${id}`, { method: "DELETE" });
+      setUsers(prev => prev.filter(u=>u.id!==id));
+      showToast("User dihapus");
+    }catch(err){ showToast("Gagal menghapus user", "error"); }
   }
 
-  function addUser(data) {
-    const newUser = { id:Date.now(), ...data, booths:[], fandoms:[] };
-    const newUsers = [...users, newUser];
-    persistUsers(newUsers);
-    setModal(null);
-    showToast("User berhasil ditambahkan");
+  async function addUser(data) {
+    try{
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const newUser = await res.json();
+      setUsers(prev => [...prev, newUser]);
+      setModal(null);
+      showToast("User berhasil ditambahkan");
+    }catch(err){ showToast("Gagal menambah user", "error"); }
   }
 
   // ── Admin: assign booth ───────────────────────────────────────────────────
   function assignBooth(userId, boothId) {
     const booth = boothId.trim().toUpperCase();
     if(!booth) return { ok:false, msg:"ID Booth tidak boleh kosong" };
-    const allAssigned = getAllAssignedBooths(users);
+    const allAssigned = users.flatMap(u => u.booths || []);
     const targetUser  = users.find(u=>u.id===userId);
     if(allAssigned.includes(booth) && !targetUser?.booths.includes(booth)) {
       return { ok:false, msg:`Booth ${booth} sudah di-assign ke user lain` };
@@ -309,49 +355,71 @@ export default function Dashboard() {
   }
 
   // ── Admin: fandom management ──────────────────────────────────────────────
-  function addFandoms(input) {
+  async function addFandoms(input) {
     const newFandoms = input.split(",").map(f=>f.trim()).filter(f=>f.length>0);
-    const merged = [...new Set([...fandoms,...newFandoms])];
-    setFandoms(merged);
-    saveFandoms(merged);
-    showToast(`${newFandoms.length} fandom ditambahkan`);
+    try{
+      const res = await fetch("/api/fandoms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fandoms: newFandoms }),
+      });
+      const merged = await res.json();
+      setFandoms(merged);
+      showToast(`${newFandoms.length} fandom ditambahkan`);
+    }catch(err){ showToast("Gagal menambah fandom", "error"); }
   }
-  function deleteFandom(f) {
-    const updated = fandoms.filter(x=>x!==f);
-    setFandoms(updated);
-    saveFandoms(updated);
-    showToast(`Fandom "${f}" dihapus`);
+
+  async function deleteFandom(f) {
+    try{
+      const res = await fetch("/api/fandoms", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fandom: f }),
+      });
+      const updated = await res.json();
+      setFandoms(updated);
+      showToast(`Fandom "${f}" dihapus`);
+    }catch(err){ showToast("Gagal menghapus fandom", "error"); }
   }
 
   // ── Excel / CSV upload ────────────────────────────────────────────────────
-  function handleExcelUpload(e) {
+  async function handleExcelUpload(e) {
     const file = e.target.files[0]; if(!file) return;
     const reader = new FileReader();
-    reader.onload = ev=>{
+    reader.onload = async ev=>{
       try {
         const text = ev.target.result;
         const lines = text.split("\n").filter(l=>l.trim());
         const isHeader = lines[0].toLowerCase().includes("email");
         const dataLines = isHeader ? lines.slice(1) : lines;
         let added=0, skipped=0, errors=[];
-        const newUsers = [...users];
-        const allEmails = newUsers.map(u=>u.email.toLowerCase());
-        dataLines.forEach((line,idx)=>{
+        const allEmails = users.map(u=>u.email.toLowerCase());
+
+        for(const [idx, line] of dataLines.entries()){
           const cols = line.split(",").map(c=>c.trim().replace(/^"|"$/g,""));
-          if(cols.length<2){ errors.push(`Baris ${idx+2}: format salah`); return; }
+          if(cols.length<2){ errors.push(`Baris ${idx+2}: format salah`); continue; }
           const [email,name,boothRaw,password] = cols;
-          if(!email||!name){ errors.push(`Baris ${idx+2}: email/nama kosong`); return; }
-          if(allEmails.includes(email.toLowerCase())){ skipped++; return; }
+          if(!email||!name){ errors.push(`Baris ${idx+2}: email/nama kosong`); continue; }
+          if(allEmails.includes(email.toLowerCase())){ skipped++; continue; }
           const boothList = boothRaw ? boothRaw.split(";").map(b=>b.trim().toUpperCase()).filter(Boolean) : [];
-          const assignedAll = getAllAssignedBooths(newUsers);
-          const validBooths = boothList.filter(b=>!assignedAll.includes(b));
-          const conflicted  = boothList.filter(b=>assignedAll.includes(b));
+          const allAssigned = users.flatMap(u => u.booths || []);
+          const validBooths = boothList.filter(b=>!allAssigned.includes(b));
+          const conflicted  = boothList.filter(b=>allAssigned.includes(b));
           if(conflicted.length>0) errors.push(`Baris ${idx+2}: booth ${conflicted.join(",")} sudah digunakan`);
-          newUsers.push({ id:Date.now()+Math.random(), name, email:email.toLowerCase(), password:password||"user123", role:"user", booths:validBooths, fandoms:[] });
-          allEmails.push(email.toLowerCase());
-          added++;
-        });
-        persistUsers(newUsers);
+
+          try{
+            const res = await fetch("/api/users", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, email:email.toLowerCase(), password:password||"user123", role:"user", booths:validBooths, fandoms:[] }),
+            });
+            const newUser = await res.json();
+            setUsers(prev => [...prev, newUser]);
+            allEmails.push(email.toLowerCase());
+            added++;
+          }catch{ errors.push(`Baris ${idx+2}: gagal menambah`); }
+        }
+
         showToast(
           `${added} user ditambahkan${skipped>0?`, ${skipped} sudah ada`:""}${errors.length>0?`. ${errors.length} error`:""}`,
           errors.length>0?"error":"success"
@@ -439,7 +507,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── TAB: FANDOM SAYA (user biasa bisa pilih sendiri) ── */}
+        {/* ── TAB: FANDOM SAYA ── */}
         {activeTab==="fandom"&&(
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-1">
@@ -451,10 +519,8 @@ export default function Dashboard() {
               fandoms={fandoms}
               selected={myData?.fandoms||[]}
               onChange={(newSel)=>{
-                // update local state dulu
                 const updated = users.map(u=>u.id===myData?.id?{...u,fandoms:newSel}:u);
                 setUsers(updated);
-                saveUsers(updated);
               }}
             />
             <button
@@ -471,9 +537,9 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-gray-900">Katalog Gambar</h2>
-              <button onClick={()=>fileRef.current?.click()}
-                className="px-3 py-1.5 bg-violet-500 text-white text-xs font-semibold rounded-lg hover:bg-violet-600">
-                + Upload
+              <button onClick={()=>fileRef.current?.click()} disabled={uploading}
+                className="px-3 py-1.5 bg-violet-500 text-white text-xs font-semibold rounded-lg hover:bg-violet-600 disabled:opacity-50">
+                {uploading ? "Mengupload..." : "+ Upload"}
               </button>
               <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleCatalogUpload}/>
             </div>
@@ -482,9 +548,9 @@ export default function Dashboard() {
               : <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {catalog.map(img=>(
                     <div key={img.id} className="relative group rounded-xl overflow-hidden border border-gray-100 aspect-square">
-                      <img src={img.url} alt={img.name} className="w-full h-full object-cover"/>
+                      <img src={img.url} alt={img.name} className="w-full h-full object-cover" loading="lazy"/>
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onClick={()=>deleteCatalog(img.id)}
+                        <button onClick={()=>deleteCatalog(img)}
                           className="px-2.5 py-1 bg-rose-500 text-white text-xs rounded-lg">Hapus</button>
                       </div>
                       <p className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] px-2 py-1 truncate">{img.name}</p>
@@ -748,7 +814,7 @@ function FandomManager({ fandoms, onAdd, onDelete }) {
   );
 }
 
-// ─── EDIT USER FORM (dengan FandomPicker + search) ────────────────────────────
+// ─── EDIT USER FORM ────────────────────────────────────────────────────────
 function EditUserForm({ user, onSave, isSuperAdmin, fandoms }) {
   const [form,       setForm]       = useState({ ...user });
   const [selFandoms, setSelFandoms] = useState(user.fandoms||[]);

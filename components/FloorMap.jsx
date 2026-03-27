@@ -1,62 +1,45 @@
 "use client";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 
-// ─── SHARED DATA ──────────────────────────────────────────────────────────────
-function getUsers(){try{return JSON.parse(localStorage.getItem("cp6_users")||"null")||INITIAL_USERS;}catch{return INITIAL_USERS;}}
-function getFandoms(){try{return JSON.parse(localStorage.getItem("cp6_fandoms")||"null")||DEFAULT_FANDOMS;}catch{return DEFAULT_FANDOMS;}}
+// ─── SHARED DATA (loaded from API) ───────────────────────────────────────────
+const DEFAULT_FANDOMS=["Genshin Impact","Honkai Star Rail","Blue Archive","Hololive","Nijisanji","Attack on Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Naruto","BTS","ENHYPEN","SEVENTEEN","Stray Kids","NewJeans","Valorant","League of Legends","Minecraft","Elden Ring","Final Fantasy","My Hero Academia","Spy x Family","Chainsaw Man","Frieren","Bocchi the Rock","Vtuber Original","Original Art","Webtoon","Light Novel","Cosplay","Arknights","Honkai Impact","Gachiakuta","Gakuen Idolmaster","Arknights Endfield"];
+
 function getSearchCounts(){try{return JSON.parse(localStorage.getItem("cp6_sc")||"{}");}catch{return{};}}
 function incrementSearch(f){const c=getSearchCounts();c[f]=(c[f]||0)+1;localStorage.setItem("cp6_sc",JSON.stringify(c));}
 function getTopFandoms(fandoms,n=12){const c=getSearchCounts();return[...fandoms].sort((a,b)=>(c[b]||0)-(c[a]||0)).slice(0,n);}
-
-const DEFAULT_FANDOMS=["Genshin Impact","Honkai Star Rail","Blue Archive","Hololive","Nijisanji","Attack on Titan","Demon Slayer","Jujutsu Kaisen","One Piece","Naruto","BTS","ENHYPEN","SEVENTEEN","Stray Kids","NewJeans","Valorant","League of Legends","Minecraft","Elden Ring","Final Fantasy","My Hero Academia","Spy x Family","Chainsaw Man","Frieren","Bocchi the Rock","Vtuber Original","Original Art","Webtoon","Light Novel","Cosplay","Arknights","Honkai Impact","Gachiakuta","Gakuen Idolmaster","Arknights Endfield"];
-
-const INITIAL_USERS=[
-  {id:1,name:"Kusuma",   email:"kusuma@mail.com", password:"user123",role:"user",      booths:["A16"],              fandoms:["Genshin Impact","Original Art"]},
-  {id:2,name:"Bagas",    email:"bagas@mail.com",  password:"user123",role:"user",      booths:["A17"],              fandoms:["Attack on Titan"]},
-  {id:3,name:"Wijaya",   email:"wijaya@mail.com", password:"user123",role:"user",      booths:["D16","D01"],        fandoms:["Naruto","One Piece"]},
-  {id:4,name:"Neko Wae", email:"neko@mail.com",   password:"user123",role:"user",      booths:["G26","G27","G28","G29"],fandoms:["Hololive","Vtuber Original"]},
-  {id:5,name:"Admin",    email:"admin@comipara.com",password:"admin123",role:"admin",  booths:[],fandoms:[]},
-  {id:6,name:"SuperAdmin",email:"super@comipara.com",password:"super123",role:"super_admin",booths:[],fandoms:[]},
-];
 
 // ─── GEOMETRY ─────────────────────────────────────────────────────────────────
 const LETTERS=["A","B","C","D","E","F","G","H","I","J","K","L","M"];
 const pad=n=>String(n).padStart(2,"0");
 const BW=30,BH=22,BG=2;
-const INNER=3;   // gap between left/right sub-col within cluster
-const AISLE=30;  // walkable corridor between clusters (wider = clearer gap)
-const SX=70;     // canvas start X
-const ROW_Y=20;  // N/O row Y
-const UY=68;     // upper cluster Y
-const LY=345;    // lower cluster Y (gap between upper/lower)
-const CW_CLUSTER=2*(BW+INNER)+AISLE; // width per cluster slot
+const INNER=3;
+const AISLE=30;
+const SX=70;
+const ROW_Y=20;
+const UY=68;
+const LY=345;
+const CW_CLUSTER=2*(BW+INNER)+AISLE;
 
 function buildPositions(){
   const pos={};
-  // Row N: N01-N16 in pairs aligned with clusters A-H
   for(let i=1;i<=16;i++){
     const pi=Math.floor((i-1)/2),si=(i-1)%2;
     const clX=SX+pi*CW_CLUSTER;
     pos["N"+pad(i)]={cx:clX+si*(BW+INNER)+BW/2,cy:ROW_Y+BH/2};
   }
-  // Row O: O01-O18 aligned with clusters H-M (right side)
   const OX=SX+7*CW_CLUSTER;
   for(let i=1;i<=18;i++){
     const pi=Math.floor((i-1)/2),si=(i-1)%2;
     pos["O"+pad(i)]={cx:OX+pi*CW_CLUSTER+si*(BW+INNER)+BW/2,cy:ROW_Y+BH/2};
   }
-  // Main clusters A-M
   LETTERS.forEach((l,li)=>{
     const clX=SX+li*CW_CLUSTER;
     const lx=clX,rx=clX+BW+INNER;
-    // Upper: left col 16->9, right col 17->24
     [16,15,14,13,12,11,10,9].forEach((n,ri)=>{pos[l+pad(n)]={cx:lx+BW/2,cy:UY+ri*(BH+BG)+BH/2};});
     [17,18,19,20,21,22,23,24].forEach((n,ri)=>{pos[l+pad(n)]={cx:rx+BW/2,cy:UY+ri*(BH+BG)+BH/2};});
-    // Lower: left col 8->1, right col 25->32
     [8,7,6,5,4,3,2,1].forEach((n,ri)=>{pos[l+pad(n)]={cx:lx+BW/2,cy:LY+ri*(BH+BG)+BH/2};});
     [25,26,27,28,29,30,31,32].forEach((n,ri)=>{pos[l+pad(n)]={cx:rx+BW/2,cy:LY+ri*(BH+BG)+BH/2};});
   });
-  // P zone
   const PX=SX+LETTERS.length*CW_CLUSTER+20;
   const pg=[[[14,15],[13,16],[12,17],[11,18],[10,19]],[[9,20],[8,21],[7,22],[6,23]],[[5,24],[4,25],[3,26],[2,27],[1,28]]];
   let pr=0;
@@ -68,20 +51,16 @@ const CW=Math.max(...Object.values(POS).map(p=>p.cx))+130;
 const CH=Math.max(...Object.values(POS).map(p=>p.cy))+185;
 
 // ─── AISLE WAYPOINTS ──────────────────────────────────────────────────────────
-// Aisles = vertical corridors between clusters + horizontal lanes
 const A_TOP_Y   = UY-20;
 const A_MID_Y   = (UY+8*(BH+BG)+LY)/2;
 const A_BOT_Y   = LY+8*(BH+BG)+18;
 const A_TIERS   = [A_TOP_Y, A_MID_Y, A_BOT_Y];
 
-// X center of each aisle (AISLE/2 past right edge of each cluster)
 const AISLE_XS=[];
 for(let li=0;li<=LETTERS.length;li++){
   const clX=SX+li*CW_CLUSTER;
-  // Aisle center is between cluster li-1 right edge and cluster li left edge
   AISLE_XS.push(clX-AISLE/2);
 }
-// P-zone aisle
 AISLE_XS.push(SX+LETTERS.length*CW_CLUSTER+10);
 
 const AISLE_NODES={};
@@ -108,17 +87,14 @@ function buildGraph(){
   const g={};
   Object.keys(ALL_NODES).forEach(id=>{g[id]=[];});
 
-  // Connect aisle nodes: horizontal (same tier, adjacent cols) & vertical (same col, adjacent tiers)
   for(let ai=0;ai<AISLE_XS.length;ai++){
     for(let ti=0;ti<A_TIERS.length;ti++){
       const cur=`_a${ai}_${ti}`;
-      // vertical neighbor
       if(ti+1<A_TIERS.length){
         const nb=`_a${ai}_${ti+1}`;
         const d=Math.abs(A_TIERS[ti]-A_TIERS[ti+1]);
         g[cur].push({id:nb,d});g[nb].push({id:cur,d});
       }
-      // horizontal neighbor
       if(ai+1<AISLE_XS.length){
         const nb=`_a${ai+1}_${ti}`;
         const d=Math.abs(AISLE_XS[ai]-AISLE_XS[ai+1]);
@@ -127,13 +103,11 @@ function buildGraph(){
     }
   }
 
-  // Connect each booth to the 1-2 nearest aisle columns
   ALL_BOOTHS.forEach(bid=>{
     const bp=POS[bid];if(!bp)return;
-    // Find nearest aisle column(s)
     const sorted=AISLE_XS.map((ax,ai)=>({ai,dx:Math.abs(bp.cx-ax)})).sort((a,b)=>a.dx-b.dx);
     sorted.slice(0,2).forEach(({ai,dx})=>{
-      if(dx>CW_CLUSTER*1.5)return; // don't connect to far aisles
+      if(dx>CW_CLUSTER*1.5)return;
       A_TIERS.forEach((ay,ti)=>{
         const aid=`_a${ai}_${ti}`;
         const d=Math.hypot(bp.cx-AISLE_XS[ai],bp.cy-ay);
@@ -173,19 +147,19 @@ function svgPath(ids){
 }
 
 // ─── TENANTS ─────────────────────────────────────────────────────────────────
-function buildTenants(users){
+function buildTenants(users, catalogMap, pricesMap){
   const t={};
   users.forEach(u=>{
     if(!u.booths?.length)return;
-    const catalog=JSON.parse(localStorage.getItem(`cp6_catalog_${u.id}`)||"[]");
-    const prices=JSON.parse(localStorage.getItem(`cp6_prices_${u.id}`)||"[]");
+    const catalog = catalogMap[u.id] || [];
+    const prices  = pricesMap[u.id] || [];
     u.booths.forEach(b=>{t[b]={userId:u.id,user:u.name,fandoms:u.fandoms,catalog,prices,allBooths:u.booths};});
   });
   return t;
 }
 
-// ─── BOOTH RECT ───────────────────────────────────────────────────────────────
-function BoothRect({id,state,onClick}){
+// ─── BOOTH RECT (memoized to prevent re-renders of all 500+ booths) ──────────
+const BoothRect = memo(function BoothRect({id,state,onClick}){
   const p=POS[id];if(!p)return null;
   const C={
     empty:    {fill:"#F8FAFC",stroke:"#CBD5E1",text:"#94A3B8"},
@@ -202,7 +176,7 @@ function BoothRect({id,state,onClick}){
       <text x={p.cx} y={p.cy} textAnchor="middle" dominantBaseline="central" fontSize={6.5} fontWeight={700} fill={C.text} fontFamily="system-ui,sans-serif" style={{userSelect:"none",pointerEvents:"none"}}>{id}</text>
     </g>
   );
-}
+});
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function BoothModal({boothId,tenant,onClose,onNavigate}){
@@ -239,8 +213,10 @@ function BoothModal({boothId,tenant,onClose,onNavigate}){
             {cat.length===0
               ?<div className="text-center py-8 bg-gray-50 border border-dashed border-gray-200 rounded-2xl"><div className="text-3xl opacity-30 mb-2">🖼️</div><p className="text-xs text-gray-400">Belum ada katalog</p></div>
               :<div className="space-y-3">
-                <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-square"><img src={cat[idx]?.url||cat[idx]} alt="catalog" className="w-full h-full object-cover"/></div>
-                {cat.length>1&&<div className="flex gap-2 overflow-x-auto pb-1">{cat.map((img,i)=><button key={i} onClick={()=>setIdx(i)} className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i===idx?"border-violet-500":"border-transparent opacity-60 hover:opacity-100"}`}><img src={img?.url||img} alt="" className="w-full h-full object-cover"/></button>)}</div>}
+                <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-square">
+                  <img src={cat[idx]?.url||cat[idx]} alt="catalog" className="w-full h-full object-cover" loading="lazy"/>
+                </div>
+                {cat.length>1&&<div className="flex gap-2 overflow-x-auto pb-1">{cat.map((img,i)=><button key={i} onClick={()=>setIdx(i)} className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i===idx?"border-violet-500":"border-transparent opacity-60 hover:opacity-100"}`}><img src={img?.url||img} alt="" className="w-full h-full object-cover" loading="lazy"/></button>)}</div>}
               </div>
             }
           </div>
@@ -289,8 +265,41 @@ export default function FloorMap(){
   const clickTimer=useRef(null);
   const searchRef=useRef(null);
 
+  // Load data from API on mount
   useEffect(()=>{
-    const u=getUsers();setUsers(u);setFandoms(getFandoms());setTenants(buildTenants(u));
+    async function loadData(){
+      try{
+        const[usersRes, fandomsRes] = await Promise.all([
+          fetch("/api/users"),
+          fetch("/api/fandoms"),
+        ]);
+        const usersData = await usersRes.json();
+        const fandomsData = await fandomsRes.json();
+
+        // Load catalogs and prices for users with booths
+        const usersWithBooths = usersData.filter(u => u.booths?.length > 0);
+        const catalogMap = {};
+        const pricesMap = {};
+
+        if(usersWithBooths.length > 0){
+          const [catalogResults, priceResults] = await Promise.all([
+            Promise.all(usersWithBooths.map(u => fetch(`/api/catalog?userId=${u.id}`).then(r=>r.json()).catch(()=>[]))),
+            Promise.all(usersWithBooths.map(u => fetch(`/api/prices?userId=${u.id}`).then(r=>r.json()).catch(()=>[]))),
+          ]);
+          usersWithBooths.forEach((u, i) => {
+            catalogMap[u.id] = catalogResults[i];
+            pricesMap[u.id] = priceResults[i];
+          });
+        }
+
+        setUsers(usersData);
+        setFandoms(fandomsData);
+        setTenants(buildTenants(usersData, catalogMap, pricesMap));
+      }catch(err){
+        console.error("Failed to load data:", err);
+      }
+    }
+    loadData();
   },[]);
 
   useEffect(()=>{
@@ -398,7 +407,7 @@ export default function FloorMap(){
   const STRIP_H=CH-STRIP_Y-28;
   const RZ_X=CW-112;
 
-  const zones=[
+  const zones=useMemo(()=>[
     {label:"Photobooth",x:SX-20,y:STRIP_Y,w:46,h:STRIP_H,f:"#FFFBEB",s:"#FDE68A",t:"#92400E"},
     {label:"Comipara\nGuild Area",x:SX+28,y:STRIP_Y,w:220,h:STRIP_H,f:"#F0F9FF",s:"#BAE6FD",t:"#0284C7"},
     {label:"Comic Class\nArea",x:SX+255,y:STRIP_Y,w:135,h:STRIP_H,f:"#F0FDFA",s:"#99F6E4",t:"#0D9488"},
@@ -409,12 +418,11 @@ export default function FloorMap(){
     {label:"Item Shop",x:SX+182,y:STRIP_Y+STRIP_H-36,w:60,h:18,f:"#EFF6FF",s:"#BFDBFE",t:"#1D4ED8"},
     {label:"Ticket Box",x:SX+396,y:STRIP_Y+STRIP_H-22,w:88,h:22,f:"#FEF2F2",s:"#FECACA",t:"#B91C1C"},
     {label:"Charging\nStation",x:SX+555,y:STRIP_Y+STRIP_H-28,w:90,h:22,f:"#F0FDF4",s:"#BBF7D0",t:"#15803D"},
-    // Right-side vertical zones — with gap from booths
     {label:"Creative\nZone",x:RZ_X,y:UY-2,w:72,h:8*(BH+BG)+8,f:"#F0FDF4",s:"#BBF7D0",t:"#16A34A"},
     {label:"Exhibitor\nZone",x:RZ_X,y:UY+8*(BH+BG)+16,w:72,h:88,f:"#FDF2F8",s:"#FBCFE8",t:"#DB2777"},
     {label:"Stage",x:RZ_X+78,y:UY+50,w:58,h:110,f:"#FEFCE8",s:"#FDE68A",t:"#92400E"},
     {label:"Cosplay\nReg Zone",x:RZ_X+78,y:LY-16,w:58,h:8*(BH+BG)+30,f:"#FAF5FF",s:"#E9D5FF",t:"#9333EA"},
-  ];
+  ],[STRIP_Y,STRIP_H,RZ_X]);
 
   const sp=showPath&&fullPath.length>=2?svgPath(fullPath):"";
   const midY=(UY+8*(BH+BG)+LY)/2;

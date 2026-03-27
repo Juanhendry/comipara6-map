@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // ─── LOCKOUT CONFIG ───────────────────────────────────────────────────────────
@@ -36,41 +36,6 @@ function formatCountdown(ms) {
   if (h > 0) return `${h} jam ${m} menit`;
   if (m > 0) return `${m} menit ${s} detik`;
   return `${s} detik`;
-}
-
-// ─── DEFAULT USERS (fallback jika localStorage kosong) ────────────────────────
-const DEFAULT_USERS = [
-  { id: 1, name: "Kusuma",     email: "kusuma@mail.com",    password: "user123",  role: "user",        booths: ["A16"], fandoms: ["Genshin Impact", "Original Art"] },
-  { id: 2, name: "Bagas",      email: "bagas@mail.com",     password: "user123",  role: "user",        booths: ["A17"], fandoms: ["Attack on Titan"] },
-  { id: 3, name: "Wijaya",     email: "wijaya@mail.com",    password: "user123",  role: "user",        booths: ["D16","D01"], fandoms: ["Naruto", "One Piece"] },
-  { id: 4, name: "Admin",      email: "admin@comipara.com", password: "admin123", role: "admin",       booths: [], fandoms: [] },
-  { id: 5, name: "SuperAdmin", email: "super@comipara.com", password: "super123", role: "super_admin", booths: [], fandoms: [] },
-];
-
-// ─── AUTH: cek di cp6_users (localStorage) DULU, lalu fallback ke default ────
-function checkCredentials(email, password) {
-  try {
-    // 1. Baca cp6_users yang disimpan dashboard (CSV upload / tambah manual)
-    const stored = localStorage.getItem("cp6_users");
-    const users  = stored ? JSON.parse(stored) : DEFAULT_USERS;
-
-    const found = users.find(
-      (u) =>
-        u.email.toLowerCase() === email.toLowerCase() &&
-        u.password === password
-    );
-    if (found) return found;
-
-    // 2. Jika tidak ketemu di localStorage, cek default list
-    //    (berguna saat localStorage belum pernah diinisialisasi)
-    return DEFAULT_USERS.find(
-      (u) =>
-        u.email.toLowerCase() === email.toLowerCase() &&
-        u.password === password
-    ) || null;
-  } catch {
-    return null;
-  }
 }
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -136,43 +101,53 @@ export default function StaffLoginPage() {
     setLoading(true);
     setError("");
 
-    await new Promise((r) => setTimeout(r, 600));
+    try {
+      // Use server-side auth API instead of checking credentials client-side
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    const account = checkCredentials(email.trim(), password);
+      if (res.ok) {
+        const account = await res.json();
+        saveLockoutData({ attempts: 0, lockedUntil: null });
+        setAttempts(0);
+        setLockedUntil(null);
 
-    if (account) {
-      saveLockoutData({ attempts: 0, lockedUntil: null });
-      setAttempts(0);
-      setLockedUntil(null);
+        localStorage.setItem(
+          "cp6_user",
+          JSON.stringify({ email: account.email, role: account.role, name: account.name })
+        );
+        localStorage.setItem("cp6_role", account.role);
 
-      localStorage.setItem(
-        "cp6_user",
-        JSON.stringify({ email: account.email, role: account.role, name: account.name })
-      );
-      localStorage.setItem("cp6_role", account.role);
-
-      await new Promise((r) => setTimeout(r, 200));
-      router.replace("/dashboard");
-    } else {
-      const newAttempts = attempts + 1;
-      const shouldLock  = newAttempts % 3 === 0;
-      const lockUntil   = shouldLock ? Date.now() + getLockoutDuration(newAttempts) : null;
-
-      setAttempts(newAttempts);
-      setLockedUntil(lockUntil);
-      saveLockoutData({ attempts: newAttempts, lockedUntil: lockUntil });
-
-      shake();
-
-      if (newAttempts >= 12) {
-        setError("Akun dikunci hingga besok pukul 00:00 karena terlalu banyak percobaan salah.");
-      } else if (shouldLock) {
-        const dur = getLockoutDuration(newAttempts);
-        setError(`Terlalu banyak percobaan salah. Tunggu ${formatCountdown(dur)} sebelum coba lagi.`);
+        await new Promise((r) => setTimeout(r, 200));
+        router.replace("/dashboard");
       } else {
-        const remAfter = 3 - (newAttempts % 3);
-        setError(`Email atau password salah. ${remAfter} percobaan tersisa sebelum dikunci.`);
+        // Login failed
+        const newAttempts = attempts + 1;
+        const shouldLock  = newAttempts % 3 === 0;
+        const lockUntil   = shouldLock ? Date.now() + getLockoutDuration(newAttempts) : null;
+
+        setAttempts(newAttempts);
+        setLockedUntil(lockUntil);
+        saveLockoutData({ attempts: newAttempts, lockedUntil: lockUntil });
+
+        shake();
+
+        if (newAttempts >= 12) {
+          setError("Akun dikunci hingga besok pukul 00:00 karena terlalu banyak percobaan salah.");
+        } else if (shouldLock) {
+          const dur = getLockoutDuration(newAttempts);
+          setError(`Terlalu banyak percobaan salah. Tunggu ${formatCountdown(dur)} sebelum coba lagi.`);
+        } else {
+          const remAfter = 3 - (newAttempts % 3);
+          setError(`Email atau password salah. ${remAfter} percobaan tersisa sebelum dikunci.`);
+        }
+        setLoading(false);
       }
+    } catch (err) {
+      setError("Koneksi gagal. Coba lagi nanti.");
       setLoading(false);
     }
   }
