@@ -192,7 +192,7 @@ export default function StaffLoginPage() {
               <input
                 type="email" value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="staff@comipara.com"
+                placeholder="[username]@[given domain].com"
                 required disabled={!!isLocked}
                 className="w-full px-3 py-2.5 text-sm bg-white/[0.06] border border-white/[0.10] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-violet-500/60 focus:bg-white/[0.09] transition-all disabled:opacity-40"
               />
