@@ -1,0 +1,3985 @@
+[
+  {
+    "id": 1,
+    "name": "Admin",
+    "email": "admin@comipara.com",
+    "password": "admin123",
+    "role": "admin",
+    "booths": [],
+    "fandoms": []
+  },
+  {
+    "id": 2,
+    "name": "SuperAdmin",
+    "email": "super@comipara.com",
+    "password": "super123",
+    "role": "super_admin",
+    "booths": [],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264548.5293,
+    "name": "Is Yuniarto",
+    "email": "a01@cp6user.com",
+    "password": "Acp601",
+    "role": "user",
+    "booths": [
+      "A01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264593.0886,
+    "name": "Akumado",
+    "email": "a0203@cp6user.com",
+    "password": "Acp60203",
+    "role": "user",
+    "booths": [
+      "A02",
+      "A03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264608.2056,
+    "name": "NUSANTARANGER",
+    "email": "a04@cp6user.com",
+    "password": "Acp604",
+    "role": "user",
+    "booths": [
+      "A04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264620.425,
+    "name": "SWETA & WANARA",
+    "email": "a05@cp6user.com",
+    "password": "Acp605",
+    "role": "user",
+    "booths": [
+      "A05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264636.7222,
+    "name": "Ragasukma",
+    "email": "a06@cp6user.com",
+    "password": "Acp606",
+    "role": "user",
+    "booths": [
+      "A06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264659.2944,
+    "name": "World Without Sleep",
+    "email": "a07@cp6user.com",
+    "password": "Acp607",
+    "role": "user",
+    "booths": [
+      "A07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264676.9717,
+    "name": "Sarang Semut",
+    "email": "a08@cp6user.com",
+    "password": "Acp608",
+    "role": "user",
+    "booths": [
+      "A08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264694.081,
+    "name": "GarisBulan Studio",
+    "email": "a09@cp6user.com",
+    "password": "Acp609",
+    "role": "user",
+    "booths": [
+      "A09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264707.3628,
+    "name": "Kandang Hewan",
+    "email": "a1011@cp6user.com",
+    "password": "Acp61011",
+    "role": "user",
+    "booths": [
+      "A10",
+      "A11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264724.9587,
+    "name": "Pengguna Stand",
+    "email": "a1213@cp6user.com",
+    "password": "Acp61213",
+    "role": "user",
+    "booths": [
+      "A12",
+      "A13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264742.4546,
+    "name": "Makan Makan Kenyang",
+    "email": "a1415@cp6user.com",
+    "password": "Acp61415",
+    "role": "user",
+    "booths": [
+      "A14",
+      "A15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264761.4224,
+    "name": "Nawa The Cloud",
+    "email": "a1617@cp6user.com",
+    "password": "Acp61617",
+    "role": "user",
+    "booths": [
+      "A16",
+      "A17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264780.8767,
+    "name": "Mora & Olfi",
+    "email": "a18@cp6user.com",
+    "password": "Acp618",
+    "role": "user",
+    "booths": [
+      "A18"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264797.1387,
+    "name": "Doomed Without Books x Timmie Ayam",
+    "email": "a19@cp6user.com",
+    "password": "Acp619",
+    "role": "user",
+    "booths": [
+      "A19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264810.4421,
+    "name": "Lebah Psd",
+    "email": "a2021@cp6user.com",
+    "password": "Acp62021",
+    "role": "user",
+    "booths": [
+      "A20",
+      "A21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264827.5251,
+    "name": "Mamachi.Art",
+    "email": "a22@cp6user.com",
+    "password": "Acp622",
+    "role": "user",
+    "booths": [
+      "A22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264844.0447,
+    "name": "Waduhdit",
+    "email": "a23@cp6user.com",
+    "password": "Acp623",
+    "role": "user",
+    "booths": [
+      "A23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264868.1025,
+    "name": "Angkringan Yabai",
+    "email": "a24@cp6user.com",
+    "password": "Acp624",
+    "role": "user",
+    "booths": [
+      "A24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264904.49,
+    "name": "Mahendra iik (Jagad Pranata)",
+    "email": "a25@cp6user.com",
+    "password": "Acp625",
+    "role": "user",
+    "booths": [
+      "A25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264914.9614,
+    "name": "Matto Haq",
+    "email": "a2627@cp6user.com",
+    "password": "Acp62627",
+    "role": "user",
+    "booths": [
+      "A26",
+      "A27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264930.538,
+    "name": "StripJogja",
+    "email": "a28@cp6user.com",
+    "password": "Acp628",
+    "role": "user",
+    "booths": [
+      "A28"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264951.4163,
+    "name": "Yam Roni",
+    "email": "a29@cp6user.com",
+    "password": "Acp629",
+    "role": "user",
+    "booths": [
+      "A29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264973.199,
+    "name": "Kawao Studio",
+    "email": "a3031@cp6user.com",
+    "password": "Acp63031",
+    "role": "user",
+    "booths": [
+      "A30",
+      "A31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579264993.1204,
+    "name": "Ann Maulina",
+    "email": "a32@cp6user.com",
+    "password": "Acp632",
+    "role": "user",
+    "booths": [
+      "A32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265010.288,
+    "name": "Mampirmasbro",
+    "email": "b01@cp6user.com",
+    "password": "Bcp601",
+    "role": "user",
+    "booths": [
+      "B01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265033.585,
+    "name": "Forte Comics",
+    "email": "b0203@cp6user.com",
+    "password": "Bcp60203",
+    "role": "user",
+    "booths": [
+      "B02",
+      "B03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265057.7327,
+    "name": "Dosen Isekai",
+    "email": "b0405@cp6user.com",
+    "password": "Bcp60405",
+    "role": "user",
+    "booths": [
+      "B04",
+      "B05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265068.5325,
+    "name": "Efek Rumah Manga",
+    "email": "b06@cp6user.com",
+    "password": "Bcp606",
+    "role": "user",
+    "booths": [
+      "B06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265082.1125,
+    "name": "KITA Illustrator",
+    "email": "b07@cp6user.com",
+    "password": "Bcp607",
+    "role": "user",
+    "booths": [
+      "B07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265094.9307,
+    "name": "That Little Clown Girl x MantraWita",
+    "email": "b08@cp6user.com",
+    "password": "Bcp608",
+    "role": "user",
+    "booths": [
+      "B08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265107.5603,
+    "name": "PLKH Perdagangan",
+    "email": "b09@cp6user.com",
+    "password": "Bcp609",
+    "role": "user",
+    "booths": [
+      "B09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265117.682,
+    "name": "Halaman Belakang Rumah Pohon",
+    "email": "b10.13@cp6user.com",
+    "password": "Bcp610111213",
+    "role": "user",
+    "booths": [
+      "B10",
+      "B11",
+      "B12",
+      "B13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265131.1614,
+    "name": "Tusca comic",
+    "email": "b14@cp6user.com",
+    "password": "Bcp614",
+    "role": "user",
+    "booths": [
+      "B14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265144.8892,
+    "name": "YAMIKAN",
+    "email": "b15@cp6user.com",
+    "password": "Bcp615",
+    "role": "user",
+    "booths": [
+      "B15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265161.9365,
+    "name": "Lingkar Tan Panama",
+    "email": "b1617@cp6user.com",
+    "password": "Bcp61617",
+    "role": "user",
+    "booths": [
+      "B16",
+      "B17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265182.0718,
+    "name": "Tikum Komikus Pemula",
+    "email": "b18@cp6user.com",
+    "password": "Bcp618",
+    "role": "user",
+    "booths": [
+      "B18"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265203.365,
+    "name": "NPC Studio",
+    "email": "b19@cp6user.com",
+    "password": "Bcp619",
+    "role": "user",
+    "booths": [
+      "B19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265229.8477,
+    "name": "Phao Games",
+    "email": "b2021@cp6user.com",
+    "password": "Bcp62021",
+    "role": "user",
+    "booths": [
+      "B20",
+      "B21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265244.364,
+    "name": "Kuttu Booku",
+    "email": "b2223@cp6user.com",
+    "password": "Bcp62223",
+    "role": "user",
+    "booths": [
+      "B22",
+      "B23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265270.9382,
+    "name": "Kronos Pastele",
+    "email": "b24@cp6user.com",
+    "password": "Bcp624",
+    "role": "user",
+    "booths": [
+      "B24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265286.4739,
+    "name": "Worth Studios",
+    "email": "b25@cp6user.com",
+    "password": "Bcp625",
+    "role": "user",
+    "booths": [
+      "B25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265306.6113,
+    "name": "Dreamcatcher",
+    "email": "b26@cp6user.com",
+    "password": "Bcp626",
+    "role": "user",
+    "booths": [
+      "B26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265323.2305,
+    "name": "cathsplat",
+    "email": "b27@cp6user.com",
+    "password": "Bcp627",
+    "role": "user",
+    "booths": [
+      "B27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265342.1772,
+    "name": "The Squadervese",
+    "email": "b28@cp6user.com",
+    "password": "Bcp628",
+    "role": "user",
+    "booths": [
+      "B28"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265365.71,
+    "name": "Nekompay",
+    "email": "b29@cp6user.com",
+    "password": "Bcp629",
+    "role": "user",
+    "booths": [
+      "B29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265386.0588,
+    "name": "BEDEBAH KOMIK",
+    "email": "b30@cp6user.com",
+    "password": "Bcp630",
+    "role": "user",
+    "booths": [
+      "B30"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265416.6638,
+    "name": "03 Heroes",
+    "email": "b31@cp6user.com",
+    "password": "Bcp631",
+    "role": "user",
+    "booths": [
+      "B31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265440.664,
+    "name": "Machine Spirit",
+    "email": "b32@cp6user.com",
+    "password": "Bcp632",
+    "role": "user",
+    "booths": [
+      "B32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265460.3618,
+    "name": "Comicotopia Bali",
+    "email": "c01@cp6user.com",
+    "password": "Ccp601",
+    "role": "user",
+    "booths": [
+      "C01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265476.9497,
+    "name": "RED TAIL X GAMBRENG",
+    "email": "c0203@cp6user.com",
+    "password": "Ccp60203",
+    "role": "user",
+    "booths": [
+      "C02",
+      "C03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265489.4604,
+    "name": "Tomcapung jilid 2",
+    "email": "c0405@cp6user.com",
+    "password": "Ccp60405",
+    "role": "user",
+    "booths": [
+      "C04",
+      "C05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265505.5825,
+    "name": "Tampar Production",
+    "email": "c0607@cp6user.com",
+    "password": "Ccp60607",
+    "role": "user",
+    "booths": [
+      "C06",
+      "C07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265522.67,
+    "name": "Giraaz Studio",
+    "email": "c08@cp6user.com",
+    "password": "Ccp608",
+    "role": "user",
+    "booths": [
+      "C08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265547.0715,
+    "name": "The Power of Friendship",
+    "email": "c09@cp6user.com",
+    "password": "Ccp609",
+    "role": "user",
+    "booths": [
+      "C09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265577.6724,
+    "name": "Bakmi Godhog",
+    "email": "c1011@cp6user.com",
+    "password": "Ccp61011",
+    "role": "user",
+    "booths": [
+      "C10",
+      "C11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265593.5037,
+    "name": "Ladies' Little Lounge",
+    "email": "c1213@cp6user.com",
+    "password": "Ccp61213",
+    "role": "user",
+    "booths": [
+      "C12",
+      "C13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265644.994,
+    "name": "BYOKI Art Studio",
+    "email": "c1415@cp6user.com",
+    "password": "Ccp61415",
+    "role": "user",
+    "booths": [
+      "C14",
+      "C15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265694.971,
+    "name": "Garis Pena",
+    "email": "c16@cp6user.com",
+    "password": "Ccp616",
+    "role": "user",
+    "booths": [
+      "C16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265735.0173,
+    "name": "VIECIRI",
+    "email": "c17@cp6user.com",
+    "password": "Ccp617",
+    "role": "user",
+    "booths": [
+      "C17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265792.8933,
+    "name": "Varietas",
+    "email": "c18@cp6user.com",
+    "password": "Ccp618",
+    "role": "user",
+    "booths": [
+      "C18"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265839.5205,
+    "name": "Saxifraga's Atelier",
+    "email": "c19@cp6user.com",
+    "password": "Ccp619",
+    "role": "user",
+    "booths": [
+      "C19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265891.7058,
+    "name": "PIE (Persekutuan Illustrator Encok)",
+    "email": "c20@cp6user.com",
+    "password": "Ccp620",
+    "role": "user",
+    "booths": [
+      "C20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265937.4175,
+    "name": "Pecel Komik",
+    "email": "c21@cp6user.com",
+    "password": "Ccp621",
+    "role": "user",
+    "booths": [
+      "C21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265950.2266,
+    "name": "Dihsainz",
+    "email": "c2223@cp6user.com",
+    "password": "Ccp62223",
+    "role": "user",
+    "booths": [
+      "C22",
+      "C23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265966.8406,
+    "name": "HAPPY BIRTHDAY part 2",
+    "email": "c24@cp6user.com",
+    "password": "Ccp624",
+    "role": "user",
+    "booths": [
+      "C24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265979.0198,
+    "name": "Wendix",
+    "email": "c25@cp6user.com",
+    "password": "Ccp625",
+    "role": "user",
+    "booths": [
+      "C25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579265992.331,
+    "name": "Warwang Warnana",
+    "email": "c2627@cp6user.com",
+    "password": "Ccp62627",
+    "role": "user",
+    "booths": [
+      "C26",
+      "C27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266006.0437,
+    "name": "StillWIP",
+    "email": "c2829@cp6user.com",
+    "password": "Ccp62829",
+    "role": "user",
+    "booths": [
+      "C28",
+      "C29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266018.014,
+    "name": "Lineakomik",
+    "email": "c30@cp6user.com",
+    "password": "Ccp630",
+    "role": "user",
+    "booths": [
+      "C30"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266037.7957,
+    "name": "Federasi Mecha Trendy",
+    "email": "c31@cp6user.com",
+    "password": "Ccp631",
+    "role": "user",
+    "booths": [
+      "C31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266050.4084,
+    "name": "ONION KING",
+    "email": "c32@cp6user.com",
+    "password": "Ccp632",
+    "role": "user",
+    "booths": [
+      "C32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266070.88,
+    "name": "Doki Doki Galz",
+    "email": "d01@cp6user.com",
+    "password": "Dcp601",
+    "role": "user",
+    "booths": [
+      "D01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266092.2083,
+    "name": "Sumimaru",
+    "email": "d0203@cp6user.com",
+    "password": "Dcp60203",
+    "role": "user",
+    "booths": [
+      "D02",
+      "D03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266105.836,
+    "name": "Cetak Cantik",
+    "email": "d04@cp6user.com",
+    "password": "Dcp604",
+    "role": "user",
+    "booths": [
+      "D04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266122.6013,
+    "name": "Visva",
+    "email": "d05@cp6user.com",
+    "password": "Dcp605",
+    "role": "user",
+    "booths": [
+      "D05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266139.686,
+    "name": "Linemancer Works",
+    "email": "d06@cp6user.com",
+    "password": "Dcp606",
+    "role": "user",
+    "booths": [
+      "D06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266157.6406,
+    "name": "SEJOLI",
+    "email": "d07@cp6user.com",
+    "password": "Dcp607",
+    "role": "user",
+    "booths": [
+      "D07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266171.1619,
+    "name": "Paw Paw Cafe",
+    "email": "d08@cp6user.com",
+    "password": "Dcp608",
+    "role": "user",
+    "booths": [
+      "D08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266189.8716,
+    "name": "kueginger",
+    "email": "d09@cp6user.com",
+    "password": "Dcp609",
+    "role": "user",
+    "booths": [
+      "D09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266204.9854,
+    "name": "Wyvern Tower Curio",
+    "email": "d10@cp6user.com",
+    "password": "Dcp610",
+    "role": "user",
+    "booths": [
+      "D10"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266221.0947,
+    "name": "kisekaree",
+    "email": "d11@cp6user.com",
+    "password": "Dcp611",
+    "role": "user",
+    "booths": [
+      "D11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266233.5195,
+    "name": "KOPIPPOKI",
+    "email": "d12@cp6user.com",
+    "password": "Dcp612",
+    "role": "user",
+    "booths": [
+      "D12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266248.77,
+    "name": "EKSPEDISI KARNAGARA",
+    "email": "d13@cp6user.com",
+    "password": "Dcp613",
+    "role": "user",
+    "booths": [
+      "D13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266262.2114,
+    "name": "Omorphia Visual",
+    "email": "d14@cp6user.com",
+    "password": "Dcp614",
+    "role": "user",
+    "booths": [
+      "D14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266282.9507,
+    "name": "Smolworld",
+    "email": "d15@cp6user.com",
+    "password": "Dcp615",
+    "role": "user",
+    "booths": [
+      "D15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266296.9827,
+    "name": "Istri Kecil MC",
+    "email": "d1617@cp6user.com",
+    "password": "Dcp61617",
+    "role": "user",
+    "booths": [
+      "D16",
+      "D17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266307.654,
+    "name": "Skena Gado-Gado Pro Lite",
+    "email": "d1819@cp6user.com",
+    "password": "Dcp61819",
+    "role": "user",
+    "booths": [
+      "D18",
+      "D19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266324.724,
+    "name": "Van-arts & Aohakka",
+    "email": "d20@cp6user.com",
+    "password": "Dcp620",
+    "role": "user",
+    "booths": [
+      "D20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266342.7993,
+    "name": "KuTilang dkk.",
+    "email": "d21@cp6user.com",
+    "password": "Dcp621",
+    "role": "user",
+    "booths": [
+      "D21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266360.5762,
+    "name": "Platonic Polycule",
+    "email": "d2223@cp6user.com",
+    "password": "Dcp62223",
+    "role": "user",
+    "booths": [
+      "D22",
+      "D23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266395.5828,
+    "name": "Klub R30",
+    "email": "d24@cp6user.com",
+    "password": "Dcp624",
+    "role": "user",
+    "booths": [
+      "D24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266446.81,
+    "name": "Xanders",
+    "email": "d25@cp6user.com",
+    "password": "Dcp625",
+    "role": "user",
+    "booths": [
+      "D25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266458.87,
+    "name": "Cutie Cakery",
+    "email": "d26@cp6user.com",
+    "password": "Dcp626",
+    "role": "user",
+    "booths": [
+      "D26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266476.2937,
+    "name": "ykmchi",
+    "email": "d27@cp6user.com",
+    "password": "Dcp627",
+    "role": "user",
+    "booths": [
+      "D27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266492.554,
+    "name": "Phosphene Colors",
+    "email": "d28@cp6user.com",
+    "password": "Dcp628",
+    "role": "user",
+    "booths": [
+      "D28"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266508.452,
+    "name": "Sekolah Menengah Anime",
+    "email": "d29@cp6user.com",
+    "password": "Dcp629",
+    "role": "user",
+    "booths": [
+      "D29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266527.1,
+    "name": "Mussbolo Studio x Danig Eil",
+    "email": "d30@cp6user.com",
+    "password": "Dcp630",
+    "role": "user",
+    "booths": [
+      "D30"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266547.5781,
+    "name": "KATSKWAT!",
+    "email": "d31@cp6user.com",
+    "password": "Dcp631",
+    "role": "user",
+    "booths": [
+      "D31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266567.0132,
+    "name": "manakutau",
+    "email": "d32@cp6user.com",
+    "password": "Dcp632",
+    "role": "user",
+    "booths": [
+      "D32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266589.715,
+    "name": "NGABLUE",
+    "email": "e01@cp6user.com",
+    "password": "Ecp601",
+    "role": "user",
+    "booths": [
+      "E01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266612.8118,
+    "name": "Tinta Kotak x Chanai4o4",
+    "email": "e0203@cp6user.com",
+    "password": "Ecp60203",
+    "role": "user",
+    "booths": [
+      "E02",
+      "E03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266681.7937,
+    "name": "AmaWaku",
+    "email": "e0405@cp6user.com",
+    "password": "Ecp60405",
+    "role": "user",
+    "booths": [
+      "E04",
+      "E05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266744.412,
+    "name": "Seblak Stroberi",
+    "email": "e06@cp6user.com",
+    "password": "Ecp606",
+    "role": "user",
+    "booths": [
+      "E06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266809.8472,
+    "name": "Transient",
+    "email": "e07@cp6user.com",
+    "password": "Ecp607",
+    "role": "user",
+    "booths": [
+      "E07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266875.4958,
+    "name": "Hidup Mati",
+    "email": "e08@cp6user.com",
+    "password": "Ecp608",
+    "role": "user",
+    "booths": [
+      "E08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266897.1323,
+    "name": "Korban Copeng",
+    "email": "e09@cp6user.com",
+    "password": "Ecp609",
+    "role": "user",
+    "booths": [
+      "E09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266908.5564,
+    "name": "Tumpangan Lontong",
+    "email": "e1011@cp6user.com",
+    "password": "Ecp61011",
+    "role": "user",
+    "booths": [
+      "E10",
+      "E11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266923.1482,
+    "name": "Kuli Lembur",
+    "email": "e1213@cp6user.com",
+    "password": "Ecp61213",
+    "role": "user",
+    "booths": [
+      "E12",
+      "E13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266938.7136,
+    "name": "Peraz Ayamz",
+    "email": "e1415@cp6user.com",
+    "password": "Ecp61415",
+    "role": "user",
+    "booths": [
+      "E14",
+      "E15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266954.216,
+    "name": "MixedSnack + Nekozaine",
+    "email": "e1617@cp6user.com",
+    "password": "Ecp61617",
+    "role": "user",
+    "booths": [
+      "E16",
+      "E17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266972.682,
+    "name": "BA.DA.K",
+    "email": "e1819@cp6user.com",
+    "password": "Ecp61819",
+    "role": "user",
+    "booths": [
+      "E18",
+      "E19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579266984.988,
+    "name": "SEKTE KOBRO",
+    "email": "e20.23@cp6user.com",
+    "password": "Ecp620212223",
+    "role": "user",
+    "booths": [
+      "E20",
+      "E21",
+      "E22",
+      "E23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267000.774,
+    "name": "Cyanic Ship",
+    "email": "e24@cp6user.com",
+    "password": "Ecp624",
+    "role": "user",
+    "booths": [
+      "E24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267018.2336,
+    "name": "MoodeeHome",
+    "email": "e25@cp6user.com",
+    "password": "Ecp625",
+    "role": "user",
+    "booths": [
+      "E25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267039.698,
+    "name": "Budak Anabul",
+    "email": "e2627@cp6user.com",
+    "password": "Ecp62627",
+    "role": "user",
+    "booths": [
+      "E26",
+      "E27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267056.3467,
+    "name": "TK x SOL x helloshel x Oouch",
+    "email": "e28.31@cp6user.com",
+    "password": "Ecp628293031",
+    "role": "user",
+    "booths": [
+      "E28",
+      "E29",
+      "E30",
+      "E31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267069.7358,
+    "name": "Ruang Resah",
+    "email": "e32@cp6user.com",
+    "password": "Ecp632",
+    "role": "user",
+    "booths": [
+      "E32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267086.3677,
+    "name": "Toko Bebek",
+    "email": "f01@cp6user.com",
+    "password": "Fcp601",
+    "role": "user",
+    "booths": [
+      "F01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267103.154,
+    "name": "NONCONMAN",
+    "email": "f0203@cp6user.com",
+    "password": "Fcp60203",
+    "role": "user",
+    "booths": [
+      "F02",
+      "F03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267120.9116,
+    "name": "Selowth x Artsypelago x Wayahe Wayang",
+    "email": "f0405@cp6user.com",
+    "password": "Fcp60405",
+    "role": "user",
+    "booths": [
+      "F04",
+      "F05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267140.3582,
+    "name": "GodaGado",
+    "email": "f0607@cp6user.com",
+    "password": "Fcp60607",
+    "role": "user",
+    "booths": [
+      "F06",
+      "F07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267158.9814,
+    "name": "heavenly ward",
+    "email": "f08@cp6user.com",
+    "password": "Fcp608",
+    "role": "user",
+    "booths": [
+      "F08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267175.1902,
+    "name": "Staartify",
+    "email": "f09@cp6user.com",
+    "password": "Fcp609",
+    "role": "user",
+    "booths": [
+      "F09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267193.087,
+    "name": "Sayuupi & Torauma",
+    "email": "f1011@cp6user.com",
+    "password": "Fcp61011",
+    "role": "user",
+    "booths": [
+      "F10",
+      "F11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267210.4465,
+    "name": "TukuYo!",
+    "email": "f1213@cp6user.com",
+    "password": "Fcp61213",
+    "role": "user",
+    "booths": [
+      "F12",
+      "F13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267229.3726,
+    "name": "Midnight Bunnies",
+    "email": "f14@cp6user.com",
+    "password": "Fcp614",
+    "role": "user",
+    "booths": [
+      "F14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267242.7825,
+    "name": "Carbithe's Brew",
+    "email": "f15@cp6user.com",
+    "password": "Fcp615",
+    "role": "user",
+    "booths": [
+      "F15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267261.718,
+    "name": "KARJIMUT (Karyawan Gaji Imut)",
+    "email": "f16@cp6user.com",
+    "password": "Fcp616",
+    "role": "user",
+    "booths": [
+      "F16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267281.508,
+    "name": "ARTEEBOX STUDIO",
+    "email": "f17@cp6user.com",
+    "password": "Fcp617",
+    "role": "user",
+    "booths": [
+      "F17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267297.1042,
+    "name": "Stasiun Sempoyongan",
+    "email": "f1819@cp6user.com",
+    "password": "Fcp61819",
+    "role": "user",
+    "booths": [
+      "F18",
+      "F19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267316.4185,
+    "name": "Kurungan Wanita Gila",
+    "email": "f2021@cp6user.com",
+    "password": "Fcp62021",
+    "role": "user",
+    "booths": [
+      "F20",
+      "F21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267338.8765,
+    "name": "COE x Angkat Jemuran",
+    "email": "f2223@cp6user.com",
+    "password": "Fcp62223",
+    "role": "user",
+    "booths": [
+      "F22",
+      "F23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267355.0881,
+    "name": "L&R",
+    "email": "f24@cp6user.com",
+    "password": "Fcp624",
+    "role": "user",
+    "booths": [
+      "F24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267373.4739,
+    "name": "Geka",
+    "email": "f25@cp6user.com",
+    "password": "Fcp625",
+    "role": "user",
+    "booths": [
+      "F25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267390.0193,
+    "name": "Ps. Gombrang Gambreng",
+    "email": "f2627@cp6user.com",
+    "password": "Fcp62627",
+    "role": "user",
+    "booths": [
+      "F26",
+      "F27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267408.603,
+    "name": "Chamomile Tea Studio",
+    "email": "f28@cp6user.com",
+    "password": "Fcp628",
+    "role": "user",
+    "booths": [
+      "F28"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267427.486,
+    "name": "COMISANS",
+    "email": "f29@cp6user.com",
+    "password": "Fcp629",
+    "role": "user",
+    "booths": [
+      "F29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267449.984,
+    "name": "scrtch art community",
+    "email": "f3031@cp6user.com",
+    "password": "Fcp63031",
+    "role": "user",
+    "booths": [
+      "F30",
+      "F31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267476.8325,
+    "name": "M² Atelier",
+    "email": "f32@cp6user.com",
+    "password": "Fcp632",
+    "role": "user",
+    "booths": [
+      "F32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267495.7922,
+    "name": "Eimimay",
+    "email": "g01@cp6user.com",
+    "password": "Gcp601",
+    "role": "user",
+    "booths": [
+      "G01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267514.4626,
+    "name": "KAKUSIBAN",
+    "email": "g0203@cp6user.com",
+    "password": "Gcp60203",
+    "role": "user",
+    "booths": [
+      "G02",
+      "G03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267533.916,
+    "name": "Papan Renang",
+    "email": "g04@cp6user.com",
+    "password": "Gcp604",
+    "role": "user",
+    "booths": [
+      "G04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267557.1538,
+    "name": "Tina Elida Shiny Things",
+    "email": "g05@cp6user.com",
+    "password": "Gcp605",
+    "role": "user",
+    "booths": [
+      "G05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267577.149,
+    "name": "Kentooth",
+    "email": "g06@cp6user.com",
+    "password": "Gcp606",
+    "role": "user",
+    "booths": [
+      "G06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267598.8171,
+    "name": "OCIKI",
+    "email": "g07@cp6user.com",
+    "password": "Gcp607",
+    "role": "user",
+    "booths": [
+      "G07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267615.4858,
+    "name": "Sunny Side Up",
+    "email": "g08@cp6user.com",
+    "password": "Gcp608",
+    "role": "user",
+    "booths": [
+      "G08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267731.096,
+    "name": "Fluffy Tales",
+    "email": "g09@cp6user.com",
+    "password": "Gcp609",
+    "role": "user",
+    "booths": [
+      "G09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267823.5674,
+    "name": "Paintry",
+    "email": "g10@cp6user.com",
+    "password": "Gcp610",
+    "role": "user",
+    "booths": [
+      "G10"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267907.2947,
+    "name": "Mintdropss x Ayam Bara",
+    "email": "g11@cp6user.com",
+    "password": "Gcp611",
+    "role": "user",
+    "booths": [
+      "G11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267929.32,
+    "name": "KaguReen",
+    "email": "g12@cp6user.com",
+    "password": "Gcp612",
+    "role": "user",
+    "booths": [
+      "G12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267951.5454,
+    "name": "Dompet Kering",
+    "email": "g13@cp6user.com",
+    "password": "Gcp613",
+    "role": "user",
+    "booths": [
+      "G13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267975.629,
+    "name": "NADKO",
+    "email": "g14@cp6user.com",
+    "password": "Gcp614",
+    "role": "user",
+    "booths": [
+      "G14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579267994.9048,
+    "name": "Euforia Visual Works",
+    "email": "g15@cp6user.com",
+    "password": "Gcp615",
+    "role": "user",
+    "booths": [
+      "G15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268015.1565,
+    "name": "Dosa Bersama",
+    "email": "g1617@cp6user.com",
+    "password": "Gcp61617",
+    "role": "user",
+    "booths": [
+      "G16",
+      "G17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268038.578,
+    "name": "Wangy Koyo",
+    "email": "g18@cp6user.com",
+    "password": "Gcp618",
+    "role": "user",
+    "booths": [
+      "G18"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268071.9602,
+    "name": "Favoritea",
+    "email": "g19@cp6user.com",
+    "password": "Gcp619",
+    "role": "user",
+    "booths": [
+      "G19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268094.7966,
+    "name": "ASBUN: Asosiasi Butuh Uang",
+    "email": "g2021@cp6user.com",
+    "password": "Gcp62021",
+    "role": "user",
+    "booths": [
+      "G20",
+      "G21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268113.0674,
+    "name": "Bolo - Bolo",
+    "email": "g22@cp6user.com",
+    "password": "Gcp622",
+    "role": "user",
+    "booths": [
+      "G22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268134.8513,
+    "name": "Wedank Uwu",
+    "email": "g23@cp6user.com",
+    "password": "Gcp623",
+    "role": "user",
+    "booths": [
+      "G23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268162.5393,
+    "name": "Swasembada Happy Birthday",
+    "email": "g24@cp6user.com",
+    "password": "Gcp624",
+    "role": "user",
+    "booths": [
+      "G24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268180.899,
+    "name": "Hitoribocchi",
+    "email": "g25@cp6user.com",
+    "password": "Gcp625",
+    "role": "user",
+    "booths": [
+      "G25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268200.2173,
+    "name": "Neko Neko Wae",
+    "email": "g26.29@cp6user.com",
+    "password": "Gcp626272829",
+    "role": "user",
+    "booths": [
+      "G26",
+      "G27",
+      "G28",
+      "G29"
+    ],
+    "fandoms": [
+      "Project Sekai",
+      "Vocaloid",
+      "VTuber indie global",
+      "original work",
+      "original character",
+      "Arknights"
+    ]
+  },
+  {
+    "id": 1774579268225.6985,
+    "name": "FMB x TPA6",
+    "email": "g3031@cp6user.com",
+    "password": "Gcp63031",
+    "role": "user",
+    "booths": [
+      "G30",
+      "G31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268244.026,
+    "name": "AYAM GUAVA",
+    "email": "g32@cp6user.com",
+    "password": "Gcp632",
+    "role": "user",
+    "booths": [
+      "G32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268264.0813,
+    "name": "Kos Khusus Duda",
+    "email": "h01@cp6user.com",
+    "password": "Hcp601",
+    "role": "user",
+    "booths": [
+      "H01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268290.196,
+    "name": "Myavi x Yozora",
+    "email": "h02.05@cp6user.com",
+    "password": "Hcp602030405",
+    "role": "user",
+    "booths": [
+      "H02",
+      "H03",
+      "H04",
+      "H05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268313.4683,
+    "name": "DPJ Circle",
+    "email": "h0607@cp6user.com",
+    "password": "Hcp60607",
+    "role": "user",
+    "booths": [
+      "H06",
+      "H07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268337.5232,
+    "name": "Iraehiraeth",
+    "email": "h08@cp6user.com",
+    "password": "Hcp608",
+    "role": "user",
+    "booths": [
+      "H08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268364.0115,
+    "name": "Golden Tails",
+    "email": "h09@cp6user.com",
+    "password": "Hcp609",
+    "role": "user",
+    "booths": [
+      "H09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268392.1682,
+    "name": "NONARY PROJECT",
+    "email": "h1011@cp6user.com",
+    "password": "Hcp61011",
+    "role": "user",
+    "booths": [
+      "H10",
+      "H11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268417.281,
+    "name": "Black Ink Project",
+    "email": "h12@cp6user.com",
+    "password": "Hcp612",
+    "role": "user",
+    "booths": [
+      "H12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268446.2473,
+    "name": "FSRD (Fakultas Seni Rehab dan Delusi)",
+    "email": "h13@cp6user.com",
+    "password": "Hcp613",
+    "role": "user",
+    "booths": [
+      "H13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268473.15,
+    "name": "PROJECT.CUAN",
+    "email": "h14@cp6user.com",
+    "password": "Hcp614",
+    "role": "user",
+    "booths": [
+      "H14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268501.9023,
+    "name": "SunnyCat studio",
+    "email": "h15@cp6user.com",
+    "password": "Hcp615",
+    "role": "user",
+    "booths": [
+      "H15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268541.7695,
+    "name": "Jenaka Art Community",
+    "email": "h16@cp6user.com",
+    "password": "Hcp616",
+    "role": "user",
+    "booths": [
+      "H16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268579.5918,
+    "name": "Kucing Kecebur",
+    "email": "h17@cp6user.com",
+    "password": "Hcp617",
+    "role": "user",
+    "booths": [
+      "H17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268615.602,
+    "name": "Anak Tangsel Datang Terus",
+    "email": "h1819@cp6user.com",
+    "password": "Hcp61819",
+    "role": "user",
+    "booths": [
+      "H18",
+      "H19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268633.0347,
+    "name": "WARUNG POJOK GANG",
+    "email": "h20.23@cp6user.com",
+    "password": "Hcp620212223",
+    "role": "user",
+    "booths": [
+      "H20",
+      "H21",
+      "H22",
+      "H23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268784.711,
+    "name": "Lapak Imajinasi",
+    "email": "h24@cp6user.com",
+    "password": "Hcp624",
+    "role": "user",
+    "booths": [
+      "H24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579268903.4336,
+    "name": "Korokoro Circle",
+    "email": "h25@cp6user.com",
+    "password": "Hcp625",
+    "role": "user",
+    "booths": [
+      "H25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269012.65,
+    "name": "Talerian Comics",
+    "email": "h26@cp6user.com",
+    "password": "Hcp626",
+    "role": "user",
+    "booths": [
+      "H26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269045.2488,
+    "name": "Hopcart",
+    "email": "h27@cp6user.com",
+    "password": "Hcp627",
+    "role": "user",
+    "booths": [
+      "H27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269062.5615,
+    "name": "daimondai4 x Kakkinesu",
+    "email": "h2829@cp6user.com",
+    "password": "Hcp62829",
+    "role": "user",
+    "booths": [
+      "H28",
+      "H29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269094.3398,
+    "name": "SaiRuva x Anyis",
+    "email": "h3031@cp6user.com",
+    "password": "Hcp63031",
+    "role": "user",
+    "booths": [
+      "H30",
+      "H31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269116.778,
+    "name": "Squash Alternative Works",
+    "email": "h32@cp6user.com",
+    "password": "Hcp632",
+    "role": "user",
+    "booths": [
+      "H32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269142.5215,
+    "name": "Happy Powder",
+    "email": "i01@cp6user.com",
+    "password": "Icp601",
+    "role": "user",
+    "booths": [
+      "I01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269165.4656,
+    "name": "Caca Café",
+    "email": "i02@cp6user.com",
+    "password": "Icp602",
+    "role": "user",
+    "booths": [
+      "I02"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269191.4917,
+    "name": "Erfolg",
+    "email": "i03@cp6user.com",
+    "password": "Icp603",
+    "role": "user",
+    "booths": [
+      "I03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269217.0354,
+    "name": "Teh Kembang Telang",
+    "email": "i04@cp6user.com",
+    "password": "Icp604",
+    "role": "user",
+    "booths": [
+      "I04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269247.8203,
+    "name": "mushroom in the corner",
+    "email": "i05@cp6user.com",
+    "password": "Icp605",
+    "role": "user",
+    "booths": [
+      "I05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269277.1113,
+    "name": "Shrimphosis",
+    "email": "i0607@cp6user.com",
+    "password": "Icp60607",
+    "role": "user",
+    "booths": [
+      "I06",
+      "I07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269302.3945,
+    "name": "Bandar BL (BBL)",
+    "email": "i08@cp6user.com",
+    "password": "Icp608",
+    "role": "user",
+    "booths": [
+      "I08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269340.9363,
+    "name": "Mizore & Baaram",
+    "email": "i09@cp6user.com",
+    "password": "Icp609",
+    "role": "user",
+    "booths": [
+      "I09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269361.77,
+    "name": "gudeg lover (GL)",
+    "email": "i10.13@cp6user.com",
+    "password": "Icp610111213",
+    "role": "user",
+    "booths": [
+      "I10",
+      "I11",
+      "I12",
+      "I13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269381.5571,
+    "name": "muxlee",
+    "email": "i14@cp6user.com",
+    "password": "Icp614",
+    "role": "user",
+    "booths": [
+      "I14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269404.6572,
+    "name": "TheGreySun X Kejiyaa",
+    "email": "i15@cp6user.com",
+    "password": "Icp615",
+    "role": "user",
+    "booths": [
+      "I15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269430.7244,
+    "name": "Tepar³Kerja",
+    "email": "i1617@cp6user.com",
+    "password": "Icp61617",
+    "role": "user",
+    "booths": [
+      "I16",
+      "I17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269456.0735,
+    "name": "Kedutaan Besar Baltit",
+    "email": "i1819@cp6user.com",
+    "password": "Icp61819",
+    "role": "user",
+    "booths": [
+      "I18",
+      "I19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269481.8408,
+    "name": "Tokonyaaa",
+    "email": "i20@cp6user.com",
+    "password": "Icp620",
+    "role": "user",
+    "booths": [
+      "I20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269508.2073,
+    "name": "Kimgaby",
+    "email": "i21@cp6user.com",
+    "password": "Icp621",
+    "role": "user",
+    "booths": [
+      "I21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269532.4402,
+    "name": "SushiHoshii & Gojodreee",
+    "email": "i22@cp6user.com",
+    "password": "Icp622",
+    "role": "user",
+    "booths": [
+      "I22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269559.9216,
+    "name": "tbyeolh x octako",
+    "email": "i23@cp6user.com",
+    "password": "Icp623",
+    "role": "user",
+    "booths": [
+      "I23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269584.6753,
+    "name": "Bougeltachi",
+    "email": "i24@cp6user.com",
+    "password": "Icp624",
+    "role": "user",
+    "booths": [
+      "I24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269616.583,
+    "name": "salmonviz x lionss007",
+    "email": "i25@cp6user.com",
+    "password": "Icp625",
+    "role": "user",
+    "booths": [
+      "I25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269644.1487,
+    "name": "Killz",
+    "email": "i26@cp6user.com",
+    "password": "Icp626",
+    "role": "user",
+    "booths": [
+      "I26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269842.9216,
+    "name": "Bengkel Racers",
+    "email": "i27@cp6user.com",
+    "password": "Icp627",
+    "role": "user",
+    "booths": [
+      "I27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579269968.1743,
+    "name": "The Racers",
+    "email": "i2829@cp6user.com",
+    "password": "Icp62829",
+    "role": "user",
+    "booths": [
+      "I28",
+      "I29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270008.696,
+    "name": "Trinkets Guild X Federasi BIJI",
+    "email": "i3031@cp6user.com",
+    "password": "Icp63031",
+    "role": "user",
+    "booths": [
+      "I30",
+      "I31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270029.7842,
+    "name": "Padepokan Pertemanan Perempuan",
+    "email": "i32@cp6user.com",
+    "password": "Icp632",
+    "role": "user",
+    "booths": [
+      "I32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270065.905,
+    "name": "Sobat Kenyal",
+    "email": "j01@cp6user.com",
+    "password": "Jcp601",
+    "role": "user",
+    "booths": [
+      "J01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270090.7046,
+    "name": "Toko Serba Halu",
+    "email": "j0203@cp6user.com",
+    "password": "Jcp60203",
+    "role": "user",
+    "booths": [
+      "J02",
+      "J03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270116.5542,
+    "name": "udah GEDE masih SUKA KARTUN?",
+    "email": "j0405@cp6user.com",
+    "password": "Jcp60405",
+    "role": "user",
+    "booths": [
+      "J04",
+      "J05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270150.7363,
+    "name": "Mixcu.co",
+    "email": "j0607@cp6user.com",
+    "password": "Jcp60607",
+    "role": "user",
+    "booths": [
+      "J06",
+      "J07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270181.4893,
+    "name": "Pabrik Anak Gepeng",
+    "email": "j08@cp6user.com",
+    "password": "Jcp608",
+    "role": "user",
+    "booths": [
+      "J08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270205.2524,
+    "name": "Sunny Day Circle",
+    "email": "j09@cp6user.com",
+    "password": "Jcp609",
+    "role": "user",
+    "booths": [
+      "J09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270230.2605,
+    "name": "CARI CUAN",
+    "email": "j1011@cp6user.com",
+    "password": "Jcp61011",
+    "role": "user",
+    "booths": [
+      "J10",
+      "J11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270257.9954,
+    "name": "Nyakar Studio",
+    "email": "j1213@cp6user.com",
+    "password": "Jcp61213",
+    "role": "user",
+    "booths": [
+      "J12",
+      "J13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270284.095,
+    "name": "Kocheng Disko",
+    "email": "j1415@cp6user.com",
+    "password": "Jcp61415",
+    "role": "user",
+    "booths": [
+      "J14",
+      "J15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270310.5955,
+    "name": "Anse",
+    "email": "j16@cp6user.com",
+    "password": "Jcp616",
+    "role": "user",
+    "booths": [
+      "J16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270331.0835,
+    "name": "Komplotan CMYK",
+    "email": "j17@cp6user.com",
+    "password": "Jcp617",
+    "role": "user",
+    "booths": [
+      "J17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270357.901,
+    "name": "Angkringan VARaway",
+    "email": "j1819@cp6user.com",
+    "password": "Jcp61819",
+    "role": "user",
+    "booths": [
+      "J18",
+      "J19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270381.1956,
+    "name": "Prokrasmaxxing",
+    "email": "j20@cp6user.com",
+    "password": "Jcp620",
+    "role": "user",
+    "booths": [
+      "J20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270407.3733,
+    "name": "Lapak Posyandu",
+    "email": "j21@cp6user.com",
+    "password": "Jcp621",
+    "role": "user",
+    "booths": [
+      "J21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270429.218,
+    "name": "Joy & Whimsy. Co",
+    "email": "j22@cp6user.com",
+    "password": "Jcp622",
+    "role": "user",
+    "booths": [
+      "J22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270455.636,
+    "name": "SAKISONE",
+    "email": "j23@cp6user.com",
+    "password": "Jcp623",
+    "role": "user",
+    "booths": [
+      "J23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270480.358,
+    "name": "Mahapralaya.Project",
+    "email": "j24@cp6user.com",
+    "password": "Jcp624",
+    "role": "user",
+    "booths": [
+      "J24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270507.4783,
+    "name": "Third Arc",
+    "email": "j25@cp6user.com",
+    "password": "Jcp625",
+    "role": "user",
+    "booths": [
+      "J25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270533.277,
+    "name": "Anahalu",
+    "email": "j2627@cp6user.com",
+    "password": "Jcp62627",
+    "role": "user",
+    "booths": [
+      "J26",
+      "J27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270562.002,
+    "name": "Sirkus Monyet Mikir",
+    "email": "j2829@cp6user.com",
+    "password": "Jcp62829",
+    "role": "user",
+    "booths": [
+      "J28",
+      "J29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270583.1943,
+    "name": "Dili Deli",
+    "email": "j3031@cp6user.com",
+    "password": "Jcp63031",
+    "role": "user",
+    "booths": [
+      "J30",
+      "J31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270610.3982,
+    "name": "Kedai Kijo",
+    "email": "j32@cp6user.com",
+    "password": "Jcp632",
+    "role": "user",
+    "booths": [
+      "J32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270647.774,
+    "name": "Buciness Man",
+    "email": "k01@cp6user.com",
+    "password": "Kcp601",
+    "role": "user",
+    "booths": [
+      "K01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270683.839,
+    "name": "Asteria Circle X Matcha Mochi Art",
+    "email": "k0203@cp6user.com",
+    "password": "Kcp60203",
+    "role": "user",
+    "booths": [
+      "K02",
+      "K03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270841.9143,
+    "name": "Noremori",
+    "email": "k04@cp6user.com",
+    "password": "Kcp604",
+    "role": "user",
+    "booths": [
+      "K04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270964.137,
+    "name": "Absolute Hyah",
+    "email": "k05@cp6user.com",
+    "password": "K05",
+    "role": "user",
+    "booths": [
+      "GANON SECRET SOCIETY"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579270989.222,
+    "name": "WWK (wanita-wanita karir)",
+    "email": "k0607@cp6user.com",
+    "password": "Kcp60607",
+    "role": "user",
+    "booths": [
+      "K06",
+      "K07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271011.1387,
+    "name": "Durami Dominion",
+    "email": "k08@cp6user.com",
+    "password": "Kcp608",
+    "role": "user",
+    "booths": [
+      "K08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271037.9148,
+    "name": "Magic Hatch",
+    "email": "k09@cp6user.com",
+    "password": "Kcp609",
+    "role": "user",
+    "booths": [
+      "K09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271063.6829,
+    "name": "Dukun Kokwet",
+    "email": "k1011@cp6user.com",
+    "password": "Kcp61011",
+    "role": "user",
+    "booths": [
+      "K10",
+      "K11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271095.646,
+    "name": "Tempat Khilaf Jajan",
+    "email": "k12@cp6user.com",
+    "password": "Kcp612",
+    "role": "user",
+    "booths": [
+      "K12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271114.0017,
+    "name": "Aoi Canvas",
+    "email": "k13@cp6user.com",
+    "password": "Kcp613",
+    "role": "user",
+    "booths": [
+      "K13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271139.323,
+    "name": "Bentala Arealis",
+    "email": "k14@cp6user.com",
+    "password": "Kcp614",
+    "role": "user",
+    "booths": [
+      "K14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271160.317,
+    "name": "Kokoneiro Circle",
+    "email": "k15@cp6user.com",
+    "password": "Kcp615",
+    "role": "user",
+    "booths": [
+      "K15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271189.409,
+    "name": "Pee Paw Kleb",
+    "email": "k16@cp6user.com",
+    "password": "Kcp616",
+    "role": "user",
+    "booths": [
+      "K16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271211.4814,
+    "name": "Olaloka by Jessica Pohan",
+    "email": "k17@cp6user.com",
+    "password": "Kcp617",
+    "role": "user",
+    "booths": [
+      "K17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271250.1035,
+    "name": "WleoWleo",
+    "email": "k1819@cp6user.com",
+    "password": "Kcp61819",
+    "role": "user",
+    "booths": [
+      "K18",
+      "K19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271275.4229,
+    "name": "Nemui(n duit amin)",
+    "email": "k20@cp6user.com",
+    "password": "Kcp620",
+    "role": "user",
+    "booths": [
+      "K20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271310.13,
+    "name": "LOEXIA x OMENT",
+    "email": "k21@cp6user.com",
+    "password": "Kcp621",
+    "role": "user",
+    "booths": [
+      "K21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271333.9358,
+    "name": "Art Idea works ( ARTI )",
+    "email": "k2223@cp6user.com",
+    "password": "Kcp62223",
+    "role": "user",
+    "booths": [
+      "K22",
+      "K23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271360.6052,
+    "name": "Lancar Jaya Abadi",
+    "email": "k24@cp6user.com",
+    "password": "Kcp624",
+    "role": "user",
+    "booths": [
+      "K24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271388.8203,
+    "name": "Chasher",
+    "email": "k25@cp6user.com",
+    "password": "Kcp625",
+    "role": "user",
+    "booths": [
+      "K25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271414.8987,
+    "name": "niceveebs!",
+    "email": "k2627@cp6user.com",
+    "password": "Kcp62627",
+    "role": "user",
+    "booths": [
+      "K26",
+      "K27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271441.836,
+    "name": "Schizoversal",
+    "email": "k2829@cp6user.com",
+    "password": "Kcp62829",
+    "role": "user",
+    "booths": [
+      "K28",
+      "K29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271464.1443,
+    "name": "Kacang Laut Dugem",
+    "email": "k30@cp6user.com",
+    "password": "Kcp630",
+    "role": "user",
+    "booths": [
+      "K30"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271490.306,
+    "name": "Zonohedron",
+    "email": "k31@cp6user.com",
+    "password": "Kcp631",
+    "role": "user",
+    "booths": [
+      "K31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271514.6228,
+    "name": "Ini Circle Neko",
+    "email": "k32@cp6user.com",
+    "password": "Kcp632",
+    "role": "user",
+    "booths": [
+      "K32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271541.4595,
+    "name": "Vertapelings",
+    "email": "l01@cp6user.com",
+    "password": "Lcp601",
+    "role": "user",
+    "booths": [
+      "L01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271567.1394,
+    "name": "PHOTOCAPY",
+    "email": "l02@cp6user.com",
+    "password": "Lcp602",
+    "role": "user",
+    "booths": [
+      "L02"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271592.483,
+    "name": "Ai Nex's",
+    "email": "l03@cp6user.com",
+    "password": "Lcp603",
+    "role": "user",
+    "booths": [
+      "L03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271617.207,
+    "name": "Pecah Telor",
+    "email": "l04@cp6user.com",
+    "password": "Lcp604",
+    "role": "user",
+    "booths": [
+      "L04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271642.657,
+    "name": "Prince Les",
+    "email": "l05@cp6user.com",
+    "password": "Lcp605",
+    "role": "user",
+    "booths": [
+      "L05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271664.9143,
+    "name": "Kapal Karam",
+    "email": "l06@cp6user.com",
+    "password": "Lcp606",
+    "role": "user",
+    "booths": [
+      "L06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271698.5562,
+    "name": "Lluna et Ssol",
+    "email": "l07@cp6user.com",
+    "password": "Lcp607",
+    "role": "user",
+    "booths": [
+      "L07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271802.0828,
+    "name": "Pembelok Handal",
+    "email": "l08@cp6user.com",
+    "password": "Lcp608",
+    "role": "user",
+    "booths": [
+      "L08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271875.1921,
+    "name": "Navisarium",
+    "email": "l09@cp6user.com",
+    "password": "Lcp609",
+    "role": "user",
+    "booths": [
+      "L09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271901.9404,
+    "name": "PALUGADAI",
+    "email": "l1011@cp6user.com",
+    "password": "Lcp61011",
+    "role": "user",
+    "booths": [
+      "L10",
+      "L11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271932.5403,
+    "name": "B*cotan Para Anak Neelam",
+    "email": "l1213@cp6user.com",
+    "password": "Lcp61213",
+    "role": "user",
+    "booths": [
+      "L12",
+      "L13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271959.8037,
+    "name": "SHARK CORRAL",
+    "email": "l14@cp6user.com",
+    "password": "Lcp614",
+    "role": "user",
+    "booths": [
+      "L14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579271982.4792,
+    "name": "Toserba Ignotus",
+    "email": "l15@cp6user.com",
+    "password": "Lcp615",
+    "role": "user",
+    "booths": [
+      "L15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272009.769,
+    "name": "freakiamat",
+    "email": "l1617@cp6user.com",
+    "password": "Lcp61617",
+    "role": "user",
+    "booths": [
+      "L16",
+      "L17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272037.382,
+    "name": "Pamiri Mart",
+    "email": "l1819@cp6user.com",
+    "password": "Lcp61819",
+    "role": "user",
+    "booths": [
+      "L18",
+      "L19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272065.7607,
+    "name": "KuroGenoPeach",
+    "email": "l20@cp6user.com",
+    "password": "Lcp620",
+    "role": "user",
+    "booths": [
+      "L20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272093.6555,
+    "name": "Storyline",
+    "email": "l21@cp6user.com",
+    "password": "Lcp621",
+    "role": "user",
+    "booths": [
+      "L21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272122.5146,
+    "name": "nadjatuhlah",
+    "email": "l22@cp6user.com",
+    "password": "Lcp622",
+    "role": "user",
+    "booths": [
+      "L22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272145.391,
+    "name": "Sommersethh",
+    "email": "l23@cp6user.com",
+    "password": "Lcp623",
+    "role": "user",
+    "booths": [
+      "L23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272173.0024,
+    "name": "Kafe Kopium",
+    "email": "l24@cp6user.com",
+    "password": "Lcp624",
+    "role": "user",
+    "booths": [
+      "L24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272198.011,
+    "name": "FRBR (Fandom Random Bocil Rantau)",
+    "email": "l25@cp6user.com",
+    "password": "Lcp625",
+    "role": "user",
+    "booths": [
+      "L25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272230.7766,
+    "name": "Disini Nganggur by KOKOHIMA",
+    "email": "l26@cp6user.com",
+    "password": "Lcp626",
+    "role": "user",
+    "booths": [
+      "L26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272262.1648,
+    "name": "First Timer DAYO!",
+    "email": "l27@cp6user.com",
+    "password": "Lcp627",
+    "role": "user",
+    "booths": [
+      "L27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272285.5002,
+    "name": "Warunk Buldjo",
+    "email": "l28@cp6user.com",
+    "password": "Lcp628",
+    "role": "user",
+    "booths": [
+      "L28"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272315.765,
+    "name": "Ambatumbas",
+    "email": "l29@cp6user.com",
+    "password": "Lcp629",
+    "role": "user",
+    "booths": [
+      "L29"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272346.1572,
+    "name": "Pengepul Cocan",
+    "email": "l30@cp6user.com",
+    "password": "Lcp630",
+    "role": "user",
+    "booths": [
+      "L30"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272378.505,
+    "name": "TKG MERCH",
+    "email": "l31@cp6user.com",
+    "password": "Lcp631",
+    "role": "user",
+    "booths": [
+      "L31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272408.4126,
+    "name": "Kekentang",
+    "email": "l32@cp6user.com",
+    "password": "Lcp632",
+    "role": "user",
+    "booths": [
+      "L32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272439.351,
+    "name": "Seeunanda",
+    "email": "m01@cp6user.com",
+    "password": "Mcp601",
+    "role": "user",
+    "booths": [
+      "M01"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272473.8794,
+    "name": "Nirmana Barengan",
+    "email": "m02@cp6user.com",
+    "password": "Mcp602",
+    "role": "user",
+    "booths": [
+      "M02"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272504.1619,
+    "name": "Telemiette",
+    "email": "m03@cp6user.com",
+    "password": "Mcp603",
+    "role": "user",
+    "booths": [
+      "M03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272533.9,
+    "name": "Kaleng Sarden",
+    "email": "m04@cp6user.com",
+    "password": "Mcp604",
+    "role": "user",
+    "booths": [
+      "M04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272566.3584,
+    "name": "Saltypals",
+    "email": "m05@cp6user.com",
+    "password": "Mcp605",
+    "role": "user",
+    "booths": [
+      "M05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272599.5518,
+    "name": "Mayoi Cafe",
+    "email": "m06@cp6user.com",
+    "password": "Mcp606",
+    "role": "user",
+    "booths": [
+      "M06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272630.531,
+    "name": "Collution",
+    "email": "m07@cp6user.com",
+    "password": "Mcp607",
+    "role": "user",
+    "booths": [
+      "M07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272658.0647,
+    "name": "Meirin",
+    "email": "m08@cp6user.com",
+    "password": "Mcp608",
+    "role": "user",
+    "booths": [
+      "M08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272691.3635,
+    "name": "Shelf Circle",
+    "email": "m09@cp6user.com",
+    "password": "Mcp609",
+    "role": "user",
+    "booths": [
+      "M09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272718.4722,
+    "name": "Mezanin Atelier",
+    "email": "m1011@cp6user.com",
+    "password": "Mcp61011",
+    "role": "user",
+    "booths": [
+      "M10",
+      "M11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272842.8762,
+    "name": "Lazuhuy",
+    "email": "m12@cp6user.com",
+    "password": "Mcp612",
+    "role": "user",
+    "booths": [
+      "M12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272913.4692,
+    "name": "TOESmato",
+    "email": "m13@cp6user.com",
+    "password": "Mcp613",
+    "role": "user",
+    "booths": [
+      "M13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272952.5125,
+    "name": "Eileen Widjaja",
+    "email": "m14@cp6user.com",
+    "password": "Mcp614",
+    "role": "user",
+    "booths": [
+      "M14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579272993.3743,
+    "name": "MINERAL",
+    "email": "m15@cp6user.com",
+    "password": "Mcp615",
+    "role": "user",
+    "booths": [
+      "M15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273027.803,
+    "name": "Pasar Semanggi",
+    "email": "m16@cp6user.com",
+    "password": "Mcp616",
+    "role": "user",
+    "booths": [
+      "M16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273062.9912,
+    "name": "Bumoons",
+    "email": "m17@cp6user.com",
+    "password": "Mcp617",
+    "role": "user",
+    "booths": [
+      "M17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273094.9084,
+    "name": "MBG (Markas Beruang Grizzly)",
+    "email": "m1819@cp6user.com",
+    "password": "Mcp61819",
+    "role": "user",
+    "booths": [
+      "M18",
+      "M19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273130.0664,
+    "name": "Lapak Pamer Gacha",
+    "email": "m20.23@cp6user.com",
+    "password": "Mcp620212223",
+    "role": "user",
+    "booths": [
+      "M20",
+      "M21",
+      "M22",
+      "M23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273165.6636,
+    "name": "bibo loo",
+    "email": "m24@cp6user.com",
+    "password": "Mcp624",
+    "role": "user",
+    "booths": [
+      "M24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273199.3435,
+    "name": "Kantya x Aruga",
+    "email": "m25@cp6user.com",
+    "password": "Mcp625",
+    "role": "user",
+    "booths": [
+      "M25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273229.2104,
+    "name": "Arteins",
+    "email": "m2627@cp6user.com",
+    "password": "Mcp62627",
+    "role": "user",
+    "booths": [
+      "M26",
+      "M27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273262.076,
+    "name": "Andy Phebe x Koko",
+    "email": "m28.31@cp6user.com",
+    "password": "Mcp628293031",
+    "role": "user",
+    "booths": [
+      "M28",
+      "M29",
+      "M30",
+      "M31"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273294.9548,
+    "name": "Kikuri Berkah x Aricraft",
+    "email": "m32@cp6user.com",
+    "password": "Mcp632",
+    "role": "user",
+    "booths": [
+      "M32"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273323.809,
+    "name": "BAJAJO 1",
+    "email": "n01.04@cp6user.com",
+    "password": "Ncp601020304",
+    "role": "user",
+    "booths": [
+      "N01",
+      "N02",
+      "N03",
+      "N04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273352.6963,
+    "name": "BAJAJO 2",
+    "email": "n05.08@cp6user.com",
+    "password": "Ncp605060708",
+    "role": "user",
+    "booths": [
+      "N05",
+      "N06",
+      "N07",
+      "N08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273383.0186,
+    "name": "SAPOTO STUDIO",
+    "email": "n09.12@cp6user.com",
+    "password": "Ncp609101112",
+    "role": "user",
+    "booths": [
+      "N09",
+      "N10",
+      "N11",
+      "N12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273410.7092,
+    "name": "Sarangsa.JRPG",
+    "email": "n13.16@cp6user.com",
+    "password": "Ncp613141516",
+    "role": "user",
+    "booths": [
+      "N13",
+      "N14",
+      "N15",
+      "N16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273441.572,
+    "name": "TBA",
+    "email": "o0102@cp6user.com",
+    "password": "Ocp60102",
+    "role": "user",
+    "booths": [
+      "O01",
+      "O02"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273470.7292,
+    "name": "Arudelu",
+    "email": "o03@cp6user.com",
+    "password": "Ocp603",
+    "role": "user",
+    "booths": [
+      "O03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273506.9907,
+    "name": "Punk Kokuet",
+    "email": "o04@cp6user.com",
+    "password": "Ocp604",
+    "role": "user",
+    "booths": [
+      "O04"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273532.3845,
+    "name": "MOSCHEEKS",
+    "email": "o05@cp6user.com",
+    "password": "Ocp605",
+    "role": "user",
+    "booths": [
+      "O05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273563.685,
+    "name": "Vayreceane & XanaduAvici",
+    "email": "o06@cp6user.com",
+    "password": "Ocp606",
+    "role": "user",
+    "booths": [
+      "O06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273592.779,
+    "name": "Haluminium",
+    "email": "o07@cp6user.com",
+    "password": "Ocp607",
+    "role": "user",
+    "booths": [
+      "O07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273624.2656,
+    "name": "Kuromitsu Kitsune",
+    "email": "o08@cp6user.com",
+    "password": "Ocp608",
+    "role": "user",
+    "booths": [
+      "O08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273650.4941,
+    "name": "Artcyne Atelier",
+    "email": "o0910@cp6user.com",
+    "password": "Ocp60910",
+    "role": "user",
+    "booths": [
+      "O09",
+      "O10"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273688.3252,
+    "name": "Sarang Alpha",
+    "email": "o1112@cp6user.com",
+    "password": "Ocp61112",
+    "role": "user",
+    "booths": [
+      "O11",
+      "O12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273714.7012,
+    "name": "Crovius",
+    "email": "o1314@cp6user.com",
+    "password": "Ocp61314",
+    "role": "user",
+    "booths": [
+      "O13",
+      "O14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273747.9202,
+    "name": "uwauwu mart x Suaka Warga Stress",
+    "email": "o1516@cp6user.com",
+    "password": "Ocp61516",
+    "role": "user",
+    "booths": [
+      "O15",
+      "O16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273872.9485,
+    "name": "maltmochie",
+    "email": "o1718@cp6user.com",
+    "password": "Ocp61718",
+    "role": "user",
+    "booths": [
+      "O17",
+      "O18"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273940.532,
+    "name": "SEGAR IKJ",
+    "email": "p0102@cp6user.com",
+    "password": "Pcp60102",
+    "role": "user",
+    "booths": [
+      "P01",
+      "P02"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579273981.0857,
+    "name": "CAKERAWALA",
+    "email": "p03@cp6user.com",
+    "password": "Pcp603",
+    "role": "user",
+    "booths": [
+      "P03"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274021.4229,
+    "name": "Ontakeriput Comics",
+    "email": "p0405@cp6user.com",
+    "password": "Pcp60405",
+    "role": "user",
+    "booths": [
+      "P04",
+      "P05"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274058.6763,
+    "name": "Maghfirare",
+    "email": "p06@cp6user.com",
+    "password": "Pcp606",
+    "role": "user",
+    "booths": [
+      "P06"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274091.6526,
+    "name": "Heroes of Chaos",
+    "email": "p07@cp6user.com",
+    "password": "Pcp607",
+    "role": "user",
+    "booths": [
+      "P07"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274126.8738,
+    "name": "MEMANTRA",
+    "email": "p08@cp6user.com",
+    "password": "Pcp608",
+    "role": "user",
+    "booths": [
+      "P08"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274162.4912,
+    "name": "Tikitanian & Fren",
+    "email": "p09@cp6user.com",
+    "password": "Pcp609",
+    "role": "user",
+    "booths": [
+      "P09"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274203.957,
+    "name": "Pasutri Wibu",
+    "email": "p10@cp6user.com",
+    "password": "Pcp610",
+    "role": "user",
+    "booths": [
+      "P10"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274231.8008,
+    "name": "MATCHARIA",
+    "email": "p11@cp6user.com",
+    "password": "Pcp611",
+    "role": "user",
+    "booths": [
+      "P11"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274264.847,
+    "name": "LaPalace",
+    "email": "p12@cp6user.com",
+    "password": "Pcp612",
+    "role": "user",
+    "booths": [
+      "P12"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274292.552,
+    "name": "Yumekawa-ya! X Goofymuufy",
+    "email": "p13@cp6user.com",
+    "password": "Pcp613",
+    "role": "user",
+    "booths": [
+      "P13"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274324.4246,
+    "name": "TRIPLE O CRAFTS",
+    "email": "p14@cp6user.com",
+    "password": "Pcp614",
+    "role": "user",
+    "booths": [
+      "P14"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274355.763,
+    "name": "AoYami Project",
+    "email": "p15@cp6user.com",
+    "password": "Pcp615",
+    "role": "user",
+    "booths": [
+      "P15"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274389.2954,
+    "name": "LUMiNOZ",
+    "email": "p16@cp6user.com",
+    "password": "Pcp616",
+    "role": "user",
+    "booths": [
+      "P16"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274438.2446,
+    "name": "Bluemeowcat",
+    "email": "p17@cp6user.com",
+    "password": "Pcp617",
+    "role": "user",
+    "booths": [
+      "P17"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274465.195,
+    "name": "Animeguzzu",
+    "email": "p1819@cp6user.com",
+    "password": "Pcp61819",
+    "role": "user",
+    "booths": [
+      "P18",
+      "P19"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274498.324,
+    "name": "Yeslife",
+    "email": "p20@cp6user.com",
+    "password": "Pcp620",
+    "role": "user",
+    "booths": [
+      "P20"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274530.0178,
+    "name": "veilkenmint",
+    "email": "p21@cp6user.com",
+    "password": "Pcp621",
+    "role": "user",
+    "booths": [
+      "P21"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274565.0618,
+    "name": "Rumah Sakit Korban Fanservice",
+    "email": "p22@cp6user.com",
+    "password": "Pcp622",
+    "role": "user",
+    "booths": [
+      "P22"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274595.17,
+    "name": "Arcane Atelier",
+    "email": "p23@cp6user.com",
+    "password": "Pcp623",
+    "role": "user",
+    "booths": [
+      "P23"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274630.34,
+    "name": "Melou Kigurumi Fursuit",
+    "email": "p24@cp6user.com",
+    "password": "Pcp624",
+    "role": "user",
+    "booths": [
+      "P24"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274660.7717,
+    "name": "Atennya (atennyx_cos)",
+    "email": "p25@cp6user.com",
+    "password": "Pcp625",
+    "role": "user",
+    "booths": [
+      "P25"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274695.778,
+    "name": "AVP [Ariochaz Vina Panda]",
+    "email": "p26@cp6user.com",
+    "password": "Pcp626",
+    "role": "user",
+    "booths": [
+      "P26"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274728.1594,
+    "name": "XeiJuu Mozzarella",
+    "email": "p27@cp6user.com",
+    "password": "Pcp627",
+    "role": "user",
+    "booths": [
+      "P27"
+    ],
+    "fandoms": []
+  },
+  {
+    "id": 1774579274761.3787,
+    "name": "Ryjakio",
+    "email": "p28@cp6user.com",
+    "password": "Pcp628",
+    "role": "user",
+    "booths": [
+      "P28"
+    ],
+    "fandoms": []
+  }
+]
