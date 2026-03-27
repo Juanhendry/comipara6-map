@@ -259,11 +259,22 @@ export default function FloorMap(){
   const[ty,setTy]=useState(0);
   const[scale,setScale]=useState(1);
   const containerRef=useRef(null);
+  const[showMapTip,setShowMapTip]=useState(false);
   const lastTouch=useRef(null);
   const lastDist=useRef(null);
   const pinching=useRef(false);
   const clickTimer=useRef(null);
   const searchRef=useRef(null);
+
+  //
+  useEffect(()=>{
+    // Tampilkan notifikasi penggunaan map (maks 3x per device)
+    try{
+      const key="cp6_map_tip_count";
+      const count=parseInt(localStorage.getItem(key)||"0",10);
+      if(count<3){localStorage.setItem(key,String(count+1));setShowMapTip(true);}
+    }catch{}
+  },[]);
 
   // Load data from API on mount
   useEffect(()=>{
@@ -575,6 +586,48 @@ export default function FloorMap(){
       )}
 
       {modalId&&tenants[modalId]&&<BoothModal boothId={modalId} tenant={tenants[modalId]} onClose={()=>setModalId(null)} onNavigate={id=>{setTab("path");setPathTo(id);setModalId(null);}}/>}
+    
+    {/* MAP TIP NOTIFICATION */}
+      {showMapTip&&(
+        <div className="fixed inset-0 z-50 flex items-end justify-center pb-8 px-4 pointer-events-none">
+          <div className="pointer-events-auto w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-[slideUp_0.35s_cubic-bezier(0.34,1.56,0.64,1)_both]"
+            style={{animation:"slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both"}}>
+            <style>{`@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}`}</style>
+            {/* Header */}
+            <div className="bg-violet-600 px-5 py-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">🗺️</div>
+              <div>
+                <p className="text-white font-extrabold text-sm tracking-tight">Cara Menggunakan Map</p>
+                <p className="text-violet-200 text-[11px] font-medium">Panduan navigasi cepat</p>
+              </div>
+            </div>
+            {/* Tips */}
+            <div className="px-5 py-4 space-y-3">
+              <div className="flex items-start gap-3 bg-violet-50 rounded-xl p-3 border border-violet-100">
+                <span className="text-2xl shrink-0 mt-0.5">🤌</span>
+                <div>
+                  <p className="text-[13px] font-bold text-gray-800">Perbesar & Perkecil</p>
+                  <p className="text-[11px] text-gray-500 font-medium leading-relaxed">Jepitkan dua jari untuk memperbesar, dan jepitkan lagi untuk memperkecil maps</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-blue-50 rounded-xl p-3 border border-blue-100">
+                <span className="text-2xl shrink-0 mt-0.5">☝️</span>
+                <div>
+                  <p className="text-[13px] font-bold text-gray-800">Geser Peta</p>
+                  <p className="text-[11px] text-gray-500 font-medium leading-relaxed">Gunakan 1 jari untuk menggeser maps ke atas maupun ke bawah</p>
+                </div>
+              </div>
+            </div>
+            {/* Button */}
+            <div className="px-5 pb-5">
+              <button
+                onClick={()=>setShowMapTip(false)}
+                className="w-full py-3 bg-violet-600 text-white text-sm font-extrabold rounded-xl shadow-sm shadow-violet-200 hover:bg-violet-700 active:scale-[0.98] transition-all tracking-wide"
+              >Mengerti, Mulai Jelajah!</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
