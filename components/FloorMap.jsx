@@ -8,6 +8,37 @@ function getSearchCounts() { try { return JSON.parse(localStorage.getItem("cp6_s
 function incrementSearch(f) { const c = getSearchCounts(); c[f] = (c[f] || 0) + 1; localStorage.setItem("cp6_sc", JSON.stringify(c)); }
 function getTopFandoms(fandoms, n = 12) { const c = getSearchCounts(); return [...fandoms].sort((a, b) => (c[b] || 0) - (c[a] || 0)).slice(0, n); }
 
+// ─── KONFIGURASI BOOTH R (Community Area) ────────────────────────────────────
+// Edit nilai di sini untuk mengatur posisi & ukuran U-shape booth R01–R12.
+// Tidak perlu menyentuh bagian lain.
+const R_CONFIG = {
+  // Offset dari tepi kiri Community Area (Community Area mulai di SX+585)
+  offsetX: 15,       // geser U ke kanan dari tepi kiri community area
+
+  // Offset dari tepi atas strip bawah (STRIP_Y)
+  offsetY: 55,       // ← TURUNKAN NILAI INI untuk turun, naikkan untuk naik
+
+  // Jarak antar booth di baris bawah (R02–R10)
+  stepX: 35,         // jarak horizontal antar booth baris bawah
+
+  // Jarak vertikal antara baris atas (lengan) dan baris bawah
+  armToBot: 46,      // ← jarak lengan kiri/kanan ke baris bawah
+};
+
+// ─── KONFIGURASI ZONE AREAS (bottom strip) ───────────────────────────────────
+// Edit offsetX (posisi kiri), w (lebar), h (tinggi) masing-masing zona di sini.
+// h: null  → pakai stripHeight otomatis
+// h: angka → tinggi custom dalam pixel
+// stripHeight: total tinggi area bawah map (guild, comic, visitor, community)
+//              ← UBAH INI jika ingin strip lebih pendek/tinggi
+const ZONE_CONFIG = {
+  stripHeight:    120,                             // ← tinggi strip bawah (px)
+  guildArea:      { offsetX: -10, w: 310, h: null },  // Guild Area
+  comicClass:     { offsetX: 305, w: 175, h: null },  // Comic Class Area
+  visitorStorage: { offsetX: 485, w: 95,  h: null },  // Visitor Storage
+  communityArea:  { offsetX: 585, w: 340, h: null },  // Community Area
+};
+
 // ─── GEOMETRY ─────────────────────────────────────────────────────────────────
 // Reference layout: N01-N14 top-left, then gap (bathroom label), then O01-O16 top-right
 // Main hall: A-M columns (13 cols), each col has 2 sub-cols × 32 rows (split upper/lower)
@@ -61,12 +92,37 @@ function buildPositions() {
   let pr = 0;
   pg.forEach((g, gi) => { if (gi > 0) pr += 1.5; g.forEach(([l, r]) => { const cy = UY + pr * (BH + BG) + BH / 2; pos["P" + pad(l)] = { cx: PX + BW / 2, cy }; pos["P" + pad(r)] = { cx: PX + BW + INNER + BW / 2, cy }; pr++; }); });
 
+  // R01–R12: U-shape inside Community Area — atur via R_CONFIG di atas
+  const R_STRIP_Y = LY + 8 * (BH + BG) + 38;
+  const COMM_X = SX + ZONE_CONFIG.communityArea.offsetX;   // tepi kiri Community Area
+  const R_LEFT_X  = COMM_X + R_CONFIG.offsetX;
+  const R_RIGHT_X = R_LEFT_X + 9 * R_CONFIG.stepX;        // setelah 9 slot bawah (R02–R10)
+  const R_TOP_Y   = R_STRIP_Y + R_CONFIG.offsetY;
+  const R_BOT_Y   = R_TOP_Y + R_CONFIG.armToBot;
+
+  // R01: lengan kiri
+  pos["R" + pad(1)] = { cx: R_LEFT_X + BW / 2, cy: R_TOP_Y + BH / 2 };
+  // R02–R10: baris bawah
+  for (let i = 2; i <= 10; i++) {
+    pos["R" + pad(i)] = { cx: R_LEFT_X + (i - 2) * R_CONFIG.stepX + BW / 2, cy: R_BOT_Y + BH / 2 };
+  }
+  // R11–R12: lengan kanan (2 booth ditumpuk)
+  pos["R" + pad(11)] = { cx: R_RIGHT_X + BW / 2, cy: R_TOP_Y + BH / 2 };
+  pos["R" + pad(12)] = { cx: R_RIGHT_X + BW / 2, cy: R_TOP_Y + BH + BG + 2 + BH / 2 };
+
+  // X01 booth: inside Visitor Storage zone
+  pos["X01"] = { cx: SX + 250, cy: LY + 8 * (BH + BG) + 38 + 106 }; // center of Visitor Storage
+
+  // X02 booth: inside Guild Area (far left of bottom strip)
+  pos["X02"] = { cx: SX + 20, cy: LY + 8 * (BH + BG) + 38 + 104 };
+
   return pos;
 }
 const POS = buildPositions();
-const CW = Math.max(...Object.values(POS).map(p => p.cx)) + 260;
-const CH = Math.max(...Object.values(POS).map(p => p.cy)) + 185;
-
+const CW = Math.max(...Object.values(POS).map(p => p.cx)) + 500;
+// CH: tinggi canvas = posisi booth terbawah + jarak ke strip + stripHeight + padding bawah
+// Ubah ZONE_CONFIG.stripHeight untuk mengatur tinggi area bawah (guild, comic, dll)
+const CH = Math.max(...Object.values(POS).map(p => p.cy)) + 38 + ZONE_CONFIG.stripHeight + -100;
 // ─── AISLE WAYPOINTS ──────────────────────────────────────────────────────────
 const A_TOP_Y = UY - 20;
 const A_MID_Y = (UY + 8 * (BH + BG) + LY) / 2;
@@ -96,6 +152,9 @@ function getAllBooths() {
   for (let i = 1; i <= 16; i++) ids.push("O" + pad(i));
   LETTERS.forEach(l => { for (let n = 1; n <= 32; n++) ids.push(l + pad(n)); });
   for (let i = 1; i <= 28; i++) ids.push("P" + pad(i));
+  for (let i = 1; i <= 12; i++) ids.push("R" + pad(i));
+  ids.push("X01");
+  ids.push("X02");
   return ids;
 }
 const ALL_BOOTHS = getAllBooths();
@@ -450,7 +509,7 @@ export default function FloorMap() {
   // Zone layout sesuai denah referensi
   const LOWER_BOT = LY + 8 * (BH + BG);
   const STRIP_Y = LOWER_BOT + 38;
-  const STRIP_H = CH - STRIP_Y - 28;
+  const STRIP_H = ZONE_CONFIG.stripHeight; // diatur via ZONE_CONFIG.stripHeight di atas
   const RZ_X = SX + LETTERS.length * CW_CLUSTER + 20; // same as PX
 
   // Right-side X zones: positioned to the right of P column
@@ -469,50 +528,40 @@ export default function FloorMap() {
   const UPPER_BOT = UY + 8 * (BH + BG);
   const FULL_H = LOWER_BOT - UY + 8; // full hall height
 
+  // Entry Hall shape: below Guild Area (bottom-left), trapezoidal appearance via rect
+  const ENTRY_X = SX - 10;
+  const ENTRY_Y = STRIP_Y + STRIP_H + 4;
+  const ENTRY_W = 310; // same width as Guild Area
+  const ENTRY_H = 28;
+
   const zones = useMemo(() => [
-    // ── Bottom strip zones ──
-    { label: "Guild Area", x: SX - 10, y: STRIP_Y, w: 310, h: STRIP_H, f: "#EFF6FF", s: "#BAE6FD", t: "#0369A1" },
-    { label: "Comic Class\nArea", x: SX + 305, y: STRIP_Y, w: 175, h: STRIP_H, f: "#FDF2F8", s: "#F9A8D4", t: "#BE185D" },
-    { label: "Visitor\nStorage", x: SX + 485, y: STRIP_Y, w: 95, h: STRIP_H, f: "#F8FAFC", s: "#E2E8F0", t: "#64748B" },
-    { label: "Community Area", x: SX + 585, y: STRIP_Y, w: 370, h: STRIP_H, f: "#FEFCE8", s: "#FDE68A", t: "#B45309" },
+    // ── Bottom strip zones — posisi, lebar & tinggi diatur via ZONE_CONFIG di atas ──
+    { label: "Guild Area",        x: SX + ZONE_CONFIG.guildArea.offsetX,      y: STRIP_Y, w: ZONE_CONFIG.guildArea.w,      h: ZONE_CONFIG.guildArea.h      ?? STRIP_H, f: "#EFF6FF", s: "#BAE6FD", t: "#0369A1", soft: true },
+    { label: "Comic Class\nArea", x: SX + ZONE_CONFIG.comicClass.offsetX,     y: STRIP_Y, w: ZONE_CONFIG.comicClass.w,     h: ZONE_CONFIG.comicClass.h     ?? STRIP_H, f: "#FDF2F8", s: "#F9A8D4", t: "#BE185D", soft: true },
+    { label: "Visitor\nStorage",  x: SX + ZONE_CONFIG.visitorStorage.offsetX, y: STRIP_Y, w: ZONE_CONFIG.visitorStorage.w, h: ZONE_CONFIG.visitorStorage.h ?? STRIP_H, f: "#F8FAFC", s: "#E2E8F0", t: "#64748B", soft: true },
+    { label: "Community Area",    x: SX + ZONE_CONFIG.communityArea.offsetX,  y: STRIP_Y, w: ZONE_CONFIG.communityArea.w,  h: ZONE_CONFIG.communityArea.h  ?? STRIP_H, f: "#FEFCE8", s: "#FDE68A", t: "#B45309", soft: true },
 
     // ── Right-side zones (vertical, matching reference) ──
-    // Creative Zone: right of P booths, upper half
-    { label: "Creative\nZone", x: XZ1, y: UY - 2, w: 65, h: UPPER_BOT - UY + 8, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X7: large box spanning both halves (center-right)
-    { label: "X7", x: XZ1, y: LY - 16, w: 65, h: LOWER_BOT - LY + 24, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
+    { label: "X7", x: XZ1, y: LY - 16, w: 65, h: LOWER_BOT - LY + 24, f: "#EDE9FE", s: "#000", t: "#000" },
 
-    // X08: stacked upper
-    { label: "X08", x: XZ2, y: UY - 2, w: 48, h: (UPPER_BOT - UY) / 2 - 2, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X09 & X12 stacked
-    { label: "X09\nX12", x: XZ2, y: UY + (UPPER_BOT - UY) / 2 + 2, w: 48, h: (UPPER_BOT - UY) / 2 - 2, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X10 lower
-    { label: "X10", x: XZ2, y: LY - 16, w: 48, h: (LOWER_BOT - LY) / 2 + 8, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X11
-    { label: "X11", x: XZ2, y: LY + (LOWER_BOT - LY) / 2 - 4, w: 48, h: (LOWER_BOT - LY) / 2 + 28, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
+    { label: "X08", x: XZ2, y: UY - 2, w: 48, h: (UPPER_BOT - UY) / 2 - 2, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X09\nX12", x: XZ2, y: UY + (UPPER_BOT - UY) / 2 + 2, w: 48, h: (UPPER_BOT - UY) / 2 - 2, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X10", x: XZ2, y: LY - 16, w: 48, h: (LOWER_BOT - LY) / 2 + 8, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X11", x: XZ2, y: LY + (LOWER_BOT - LY) / 2 - 4, w: 48, h: (LOWER_BOT - LY) / 2 + 28, f: "#EDE9FE", s: "#000", t: "#000" },
 
-    // Community Stage: top-right corner (yellow)
-    { label: "Community\nStage", x: XZ3, y: UY - 2, w: 130, h: (FULL_H) * 0.38, f: "#FEFCE8", s: "#FDE68A", t: "#92400E" },
-    // Visitor Idle Area: below Community Stage (green)
-    { label: "Visitor Idle\nArea", x: XZ3, y: UY + (FULL_H) * 0.38 + 4, w: 130, h: (FULL_H) * 0.42 - 4, f: "#F0FDF4", s: "#86EFAC", t: "#16A34A" },
-    // X13 upper (paired: left)
-    { label: "X13", x: XZ4, y: UY + (FULL_H) * 0.38 + 4, w: 52, h: (FULL_H) * 0.20, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X14 upper (paired: right)
-    { label: "X13", x: XZ5, y: UY + (FULL_H) * 0.38 + 4, w: 52, h: (FULL_H) * 0.20, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X13 lower (paired: left)
-    { label: "X14", x: XZ4, y: UY + (FULL_H) * 0.60 + 4, w: 52, h: (FULL_H) * 0.22, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    // X14 lower (paired: right)
-    { label: "X14", x: XZ5, y: UY + (FULL_H) * 0.60 + 4, w: 52, h: (FULL_H) * 0.22, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
+    { label: "Community\nStage", x: XZ3, y: UY - 2, w: 130, h: (FULL_H) * 0.38, f: "#FEF9C3", s: "#000", t: "#000" },
+    { label: "Visitor Idle\nArea", x: XZ3, y: UY + (FULL_H) * 0.38 + 4, w: 130, h: (FULL_H) * 0.42 - 4, f: "#DCFCE7", s: "#000", t: "#000" },
 
-    // Right-edge vertical X zones (X15-X19 stacked far right)
-    { label: "X15", x: XZ5 + 56, y: UY - 2, w: 28, h: (FULL_H) * 0.18, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    { label: "X16", x: XZ5 + 56, y: UY + (FULL_H) * 0.19, w: 28, h: (FULL_H) * 0.18, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    { label: "X17", x: XZ5 + 56, y: UY + (FULL_H) * 0.38, w: 28, h: (FULL_H) * 0.18, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    { label: "X18", x: XZ5 + 56, y: UY + (FULL_H) * 0.57, w: 28, h: (FULL_H) * 0.18, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
-    { label: "X19", x: XZ5 + 56, y: UY + (FULL_H) * 0.76, w: 28, h: (FULL_H) * 0.24, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
+    { label: "X13", x: XZ4, y: UY + (FULL_H) * 0.38 + 4, w: 52, h: (FULL_H) * 0.20, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X13", x: XZ5, y: UY + (FULL_H) * 0.38 + 4, w: 52, h: (FULL_H) * 0.20, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X14", x: XZ4, y: UY + (FULL_H) * 0.60 + 4, w: 52, h: (FULL_H) * 0.22, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X14", x: XZ5, y: UY + (FULL_H) * 0.60 + 4, w: 52, h: (FULL_H) * 0.22, f: "#EDE9FE", s: "#000", t: "#000" },
 
-    // Bottom-right strip for community area sub-zones (X01-X10 row at bottom)
-    { label: "X01", x: SX + 480, y: STRIP_Y + 4, w: 32, h: STRIP_H - 8, f: "#FAF5FF", s: "#E9D5FF", t: "#9333EA" },
+    { label: "X15", x: XZ5 + 56, y: UY - 2, w: 28, h: (FULL_H) * 0.18, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X16", x: XZ5 + 56, y: UY + (FULL_H) * 0.19, w: 28, h: (FULL_H) * 0.18, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X17", x: XZ5 + 56, y: UY + (FULL_H) * 0.38, w: 28, h: (FULL_H) * 0.18, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X18", x: XZ5 + 56, y: UY + (FULL_H) * 0.57, w: 28, h: (FULL_H) * 0.18, f: "#EDE9FE", s: "#000", t: "#000" },
+    { label: "X19", x: XZ5 + 56, y: UY + (FULL_H) * 0.76, w: 28, h: (FULL_H) * 0.24, f: "#EDE9FE", s: "#000", t: "#000" },
   ], [STRIP_Y, STRIP_H, XZ1, XZ2, XZ3, XZ4, XZ5, PX, UPPER_BOT, FULL_H]);
 
   const sp = showPath && fullPath.length >= 2 ? svgPath(fullPath) : "";
@@ -537,21 +586,23 @@ export default function FloorMap() {
   };
   const nbBtnActive = { ...nbBtn, background: NB.black, color: NB.yellow };
   const nbInput = {
-    border: "2.5px solid #000", background: NB.white, fontWeight: 700,
+    border: "2.5px solid #000", background: NB.white, color: NB.black, fontWeight: 700,
     fontSize: 13, padding: "8px 10px", outline: "none", width: "100%",
-    boxSizing: "border-box", fontFamily: "monospace",
+    boxSizing: "border-box", fontFamily: "monospace", colorScheme: "light",
   };
 
   return (
-    <div style={{ display:"flex", flexDirection:"column", background:NB.bg, overflow:"hidden", height:"100dvh", fontFamily:"'Space Grotesk',system-ui,sans-serif" }}>
+    <div style={{ display:"flex", flexDirection:"column", background:NB.bg, overflow:"hidden", height:"100dvh", fontFamily:"'Space Grotesk',system-ui,sans-serif", colorScheme:"light", color:"#000" }}>
       <style>{`
         @keyframes dashAnim{to{stroke-dashoffset:-32}}
         @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap');
         .nb-btn:active{box-shadow:1px 1px 0 #000!important;transform:translate(2px,2px)!important}
-        .nb-tag{display:inline-block;padding:2px 8px;border:2px solid #000;font-weight:800;font-size:10px;background:#FFFDF5;cursor:pointer}
-        .nb-tag-active{background:#000;color:#FACC15}
-        .nb-sugg-item:hover{background:#FACC15}
+        .nb-tag{display:inline-block;padding:2px 8px;border:2px solid #000;font-weight:800;font-size:10px;background:#FFFDF5;cursor:pointer;color:#000}
+        .nb-tag-active{background:#000!important;color:#FACC15!important}
+        .nb-sugg-item{color:#000;background:#fff}
+        .nb-sugg-item:hover{background:#FACC15!important;color:#000!important}
+        *{color-scheme:light}
       `}</style>
 
       {/* ── HEADER ── */}
@@ -560,18 +611,18 @@ export default function FloorMap() {
           <h1 style={{ margin:0, fontWeight:900, fontSize:18, letterSpacing:"-0.02em", lineHeight:1.1 }}>
             COMIPARA 6 <span style={{ background:NB.black, color:NB.yellow, fontSize:10, fontWeight:900, padding:"2px 8px", letterSpacing:"0.1em", verticalAlign:"middle" }}>MAP</span>
           </h1>
-          <p style={{ margin:0, fontSize:10, fontWeight:700, color:"#555", letterSpacing:"0.04em" }}>TAP 1× PILIH · TAP 2× DETAIL · 2 JARI ZOOM</p>
+          <p style={{ margin:0, fontSize:10, fontWeight:700, color:"#333", letterSpacing:"0.04em" }}>TAP 1× PILIH · TAP 2× DETAIL · 2 JARI ZOOM</p>
         </div>
         <button className="nb-btn" style={nbBtn} onClick={resetView}>RESET VIEW</button>
       </div>
 
       {/* ── CONTROLS ── */}
-      <div style={{ background:NB.white, borderBottom:"3px solid #000", padding:"10px 14px", flexShrink:0, zIndex:10 }}>
+      <div style={{ background:"#ffffff", borderBottom:"3px solid #000", padding:"10px 14px", flexShrink:0, zIndex:10, color:"#000" }}>
         {/* Tab switcher */}
         <div style={{ display:"flex", gap:0, marginBottom:10, border:"2.5px solid #000", width:"fit-content" }}>
           {[["search","🔍 FANDOM"],["path","🗺️ NAVIGASI"]].map(([t,l]) => (
             <button key={t} className="nb-btn" onClick={() => { setTab(t); if(t==="search") resetPath(); }}
-              style={tab===t ? {...nbBtnActive, padding:"7px 14px"} : {...nbBtn, background:NB.white, color:NB.black, boxShadow:"none", padding:"7px 14px", borderRight: t==="search"?"2.5px solid #000":"none", borderLeft:"none", borderTop:"none", borderBottom:"none" }}>
+              style={tab===t ? {...nbBtnActive, padding:"7px 14px"} : {...nbBtn, background:NB.white, color:"#000", boxShadow:"none", padding:"7px 14px", borderRight: t==="search"?"2.5px solid #000":"none", borderLeft:"none", borderTop:"none", borderBottom:"none" }}>
               {l}
             </button>
           ))}
@@ -590,7 +641,7 @@ export default function FloorMap() {
                   <div style={{ position:"absolute", top:"100%", left:0, right:0, background:NB.white, border:"2.5px solid #000", zIndex:50, marginTop:2, boxShadow:"4px 4px 0 #000" }}>
                     {suggestions.map(f => (
                       <button key={f} className="nb-sugg-item" onMouseDown={() => selectSuggestion(f)}
-                        style={{ width:"100%", textAlign:"left", padding:"8px 12px", fontWeight:700, fontSize:12, background:"none", border:"none", borderBottom:"1.5px solid #000", cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
+                        style={{ width:"100%", textAlign:"left", padding:"8px 12px", fontWeight:700, fontSize:12, background:"#fff", color:"#000", border:"none", borderBottom:"1.5px solid #000", cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
                         🔍 {f}
                         {(getSearchCounts()[f]||0)>0 && <span style={{ marginLeft:"auto", fontSize:9, fontWeight:900, background:NB.black, color:NB.yellow, padding:"1px 5px" }}>{getSearchCounts()[f]}×</span>}
                       </button>
@@ -615,18 +666,18 @@ export default function FloorMap() {
         )}
 
         {tab === "path" && (
-          <div style={{ background:"#F5F5F0", border:"2.5px solid #000", padding:"10px", display:"flex", flexDirection:"column", gap:8 }}>
+          <div style={{ background:"#F5F5F0", border:"2.5px solid #000", padding:"10px", display:"flex", flexDirection:"column", gap:8, color:"#000" }}>
             <p style={{ margin:0, fontSize:10, fontWeight:800, letterSpacing:"0.06em" }}>TAP 2 BOOTH DI PETA ATAU MASUKKAN ID MANUAL:</p>
             <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:6, flex:1, minWidth:110, background:NB.white, border:"2.5px solid #000", padding:"4px 8px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, flex:1, minWidth:110, background:"#ffffff", border:"2.5px solid #000", padding:"4px 8px", color:"#000" }}>
                 <span style={{ width:22,height:22,background:NB.green,border:"2px solid #000",fontWeight:900,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>A</span>
                 <input value={pathFrom} onChange={e => setPathFrom(e.target.value.toUpperCase())} placeholder="Mulai (e.g. A01)"
-                  style={{ flex:1, border:"none", outline:"none", fontWeight:800, fontSize:13, fontFamily:"monospace", textTransform:"uppercase", background:"transparent" }} />
+                  style={{ flex:1, border:"none", outline:"none", fontWeight:800, fontSize:13, fontFamily:"monospace", textTransform:"uppercase", background:"transparent", color:"#000" }} />
               </div>
-              <div style={{ display:"flex", alignItems:"center", gap:6, flex:1, minWidth:110, background:NB.white, border:"2.5px solid #000", padding:"4px 8px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, flex:1, minWidth:110, background:"#ffffff", border:"2.5px solid #000", padding:"4px 8px", color:"#000" }}>
                 <span style={{ width:22,height:22,background:NB.red,border:"2px solid #000",fontWeight:900,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>B</span>
                 <input value={pathTo} onChange={e => setPathTo(e.target.value.toUpperCase())} placeholder="Tujuan (e.g. M32)"
-                  style={{ flex:1, border:"none", outline:"none", fontWeight:800, fontSize:13, fontFamily:"monospace", textTransform:"uppercase", background:"transparent" }} />
+                  style={{ flex:1, border:"none", outline:"none", fontWeight:800, fontSize:13, fontFamily:"monospace", textTransform:"uppercase", background:"transparent", color:"#000" }} />
               </div>
               <button className="nb-btn" style={{ ...nbBtn, opacity:(!pathFrom||!pathTo)?0.4:1 }} disabled={!pathFrom||!pathTo} onClick={handleFindPath}>CARI</button>
               <button className="nb-btn" style={{ ...nbBtn, background:NB.white, color:NB.black }} onClick={resetPath}>RESET</button>
@@ -642,7 +693,7 @@ export default function FloorMap() {
       </div>
 
       {/* ── LEGEND ── */}
-      <div style={{ display:"flex", gap:10, padding:"6px 14px", background:"#F0EFE8", borderBottom:"2.5px solid #000", flexShrink:0, overflowX:"auto" }}>
+      <div style={{ display:"flex", gap:10, padding:"6px 14px", background:"#F0EFE8", borderBottom:"2.5px solid #000", flexShrink:0, overflowX:"auto", color:"#000" }}>
         {[
           { bg:"#C4B5FD", label:"TERISI" },
           { bg:"#FACC15", label:"HASIL CARI" },
@@ -690,9 +741,20 @@ export default function FloorMap() {
             <line x1={SX-10} y1={midY} x2={SX + LETTERS.length * CW_CLUSTER + 75} y2={midY} stroke="#000" strokeWidth={1.5} strokeDasharray="8 5" />
             <text x={(SX + SX + LETTERS.length * CW_CLUSTER + 75) / 2} y={midY + 11} textAnchor="middle" fontSize={7.5} fill="#555" fontWeight={900} letterSpacing={4} fontFamily="monospace">CREATOR MERCHANT AREA</text>
 
-            {/* Zones — neobrutalism: hard shadow + thick border */}
-            {zones.map(({ label, x, y, w, h, f, s, t }, i) => {
+            {/* Zones: soft=rounded original style, default=neobrutalism hard shadow */}
+            {zones.map(({ label, x, y, w, h, f, s, t, soft }, i) => {
               const lines = label.split("\n");
+              if (soft) {
+                return <g key={i}>
+                  <rect x={x} y={y} width={w} height={h} rx={8} fill={f} stroke={s} strokeWidth={1.5} />
+                  {lines.map((line, li) => (
+                    <text key={li} x={x+w/2} y={y+h/2+(li-(lines.length-1)/2)*10}
+                      textAnchor="middle" dominantBaseline="central"
+                      fontSize={8} fill={t} fontWeight={900}
+                      fontFamily="monospace" letterSpacing={1}>{line.toUpperCase()}</text>
+                  ))}
+                </g>;
+              }
               return <g key={i}>
                 <rect x={x+3} y={y+3} width={w} height={h} fill="#000" />
                 <rect x={x} y={y} width={w} height={h} fill={f} stroke="#000" strokeWidth={2} />
@@ -705,14 +767,21 @@ export default function FloorMap() {
               </g>;
             })}
 
-            {/* Entry */}
-            <g transform={`translate(${CW/2-80},${CH-14})`}>
-              <rect x={-3} y={-3} width={166} height={18} fill="#000" />
-              <rect x={-20} y={-8} width={160} height={16} fill={NB.yellow} stroke="#000" strokeWidth={2} />
-              <text x={60} y={0} fontSize={7} fill="#000" fontWeight={900} textAnchor="middle" dominantBaseline="central" letterSpacing={1} fontFamily="monospace">↑ ENTRY (Hall A / B)</text>
-            </g>
-            <text x={SX} y={CH-14} fontSize={7} fill="#000" fontWeight={900} fontFamily="monospace">X02</text>
-            <text x={SX+290} y={CH-14} fontSize={7} fill="#000" fontWeight={900} fontFamily="monospace">X01</text>
+            {/* Entry Hall shape below Guild Area */}
+            {(() => {
+              const LOWER_BOT_E = LY + 8 * (BH + BG);
+              const STRIP_Y_E = LOWER_BOT_E + 38;
+              const STRIP_H_E = CH - STRIP_Y_E - 28;
+              const EY = STRIP_Y_E + STRIP_H_E + 4;
+              const EW = 310;
+              const EH = 30;
+              const EX = SX - 10;
+              return <g>
+                <rect x={EX+3} y={EY+3} width={EW} height={EH} fill="#000" />
+                <rect x={EX} y={EY} width={EW} height={EH} fill="#FACC15" stroke="#000" strokeWidth={2} />
+                <text x={EX + EW/2} y={EY + EH/2} textAnchor="middle" dominantBaseline="central" fontSize={8} fill="#000" fontWeight={900} fontFamily="monospace" letterSpacing={1}>↑ ENTRY HALL (GUILD AREA)</text>
+              </g>;
+            })()}
 
             {/* Booths */}
             {ALL_BOOTHS.map(id => <BoothRect key={id} id={id} state={getState(id)} onClick={handleBoothClick} />)}
@@ -731,7 +800,7 @@ export default function FloorMap() {
 
       {/* ── BOTTOM PANEL ── */}
       {selectedId && !modalId && (
-        <div style={{ position:"absolute", bottom:16, left:16, right:16, maxWidth:320, marginLeft:"auto", background:NB.white, border:"3px solid #000", boxShadow:"5px 5px 0 #000", padding:16, zIndex:20, animation:"slideUp .25s ease forwards" }}>
+        <div style={{ position:"absolute", bottom:16, left:16, right:16, maxWidth:320, marginLeft:"auto", background:"#ffffff", border:"3px solid #000", boxShadow:"5px 5px 0 #000", padding:16, zIndex:20, animation:"slideUp .25s ease forwards", color:"#000", colorScheme:"light" }}>
           <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:8 }}>
             <div>
               <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
@@ -766,7 +835,7 @@ export default function FloorMap() {
       {/* ── MAP TIP NOTIFICATION ── */}
       {showMapTip && (
         <div style={{ position:"fixed", inset:0, zIndex:50, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 16px 32px", pointerEvents:"none" }}>
-          <div style={{ pointerEvents:"auto", width:"100%", maxWidth:360, background:NB.white, border:"3px solid #000", boxShadow:"6px 6px 0 #000", overflow:"hidden", animation:"slideUp .3s cubic-bezier(.34,1.56,.64,1) both" }}>
+          <div style={{ pointerEvents:"auto", width:"100%", maxWidth:360, background:"#ffffff", border:"3px solid #000", boxShadow:"6px 6px 0 #000", overflow:"hidden", animation:"slideUp .3s cubic-bezier(.34,1.56,.64,1) both", color:"#000", colorScheme:"light" }}>
             {/* Header */}
             <div style={{ background:NB.yellow, padding:"14px 18px", display:"flex", alignItems:"center", gap:12, borderBottom:"3px solid #000" }}>
               <span style={{ fontSize:24 }}>🗺️</span>
