@@ -124,7 +124,10 @@ const CW = Math.max(...Object.values(POS).map(p => p.cx)) + 500;
 // Ubah ZONE_CONFIG.stripHeight untuk mengatur tinggi area bawah (guild, comic, dll)
 const CH = Math.max(...Object.values(POS).map(p => p.cy)) + 38 + ZONE_CONFIG.stripHeight + -100;
 // ─── AISLE WAYPOINTS ──────────────────────────────────────────────────────────
-const A_TOP_Y = UY - 20;
+// Posisi jalur horizontal bagian atas.
+// Digeser sedikit lebih turun (UY-20 → UY-18) supaya tidak terlalu mepet
+// ke booth N/O saat pengecekan tabrakan memakai padding.
+const A_TOP_Y = UY - 18;
 const A_MID_Y = (UY + 8 * (BH + BG) + LY) / 2;
 const A_BOT_Y = LY + 8 * (BH + BG) + 18;
 const A_TIERS = [A_TOP_Y, A_MID_Y, A_BOT_Y];
@@ -171,7 +174,7 @@ function buildGraph() {
         const d = Math.abs(A_TIERS[ti] - A_TIERS[ti + 1]);
         g[cur].push({ id: nb, d }); g[nb].push({ id: cur, d });
       }
-      if (ai + 1 < AISLE_XS.length) {
+      if (ti === 1 && ai + 1 < AISLE_XS.length) {
         const nb = `_a${ai + 1}_${ti}`;
         const d = Math.abs(AISLE_XS[ai] - AISLE_XS[ai + 1]);
         g[cur].push({ id: nb, d }); g[nb].push({ id: cur, d });
@@ -182,44 +185,449 @@ function buildGraph() {
   ALL_BOOTHS.forEach(bid => {
     const bp = POS[bid]; if (!bp) return;
     const sorted = AISLE_XS.map((ax, ai) => ({ ai, dx: Math.abs(bp.cx - ax) })).sort((a, b) => a.dx - b.dx);
+    const nearestTier = bp.cy < A_TIERS[1] ? 0 : 2;
+
     sorted.slice(0, 2).forEach(({ ai, dx }) => {
       if (dx > CW_CLUSTER * 1.5) return;
-      A_TIERS.forEach((ay, ti) => {
-        const aid = `_a${ai}_${ti}`;
-        const d = Math.hypot(bp.cx - AISLE_XS[ai], bp.cy - ay);
-        g[bid].push({ id: aid, d }); g[aid].push({ id: bid, d });
-      });
+      const ay = A_TIERS[nearestTier];
+      const aid = `_a${ai}_${nearestTier}`;
+      const d = Math.hypot(bp.cx - AISLE_XS[ai], bp.cy - ay);
+      g[bid].push({ id: aid, d }); g[aid].push({ id: bid, d });
     });
   });
   return g;
 }
 const GRAPH = buildGraph();
+const ALLEY_GRAPH = Object.fromEntries(
+  Object.entries(GRAPH)
+    .filter(([id]) => id.startsWith("_a"))
+    .map(([id, edges]) => [id, edges.filter(({ id: nb }) => nb.startsWith("_a"))])
+);
 
-function aStar(start, goal) {
+function nearestAisleIndexByX(x) {
+  let best = 0;
+  let bestDx = Infinity;
+  for (let ai = 0; ai < AISLE_XS.length; ai++) {
+    const dx = Math.abs(x - AISLE_XS[ai]);
+    if (dx < bestDx) { bestDx = dx; best = ai; }
+  }
+  return best;
+}
+
+function getBoothAisleIndex(boothId) {
+  const p = POS[boothId];
+  if (!p) return 0;
+
+  const parsed = parseBoothId(boothId);
+  const letterIndex = parsed && parsed.prefix.length === 1 ? LETTERS.indexOf(parsed.prefix) : -1;
+
+  // A–M: enforce exiting to the outer aisle of the booth's column.
+  if (letterIndex >= 0 && parsed) {
+    const isLeftCol = parsed.num <= 16;
+    const ai = isLeftCol ? letterIndex : letterIndex + 1;
+    return Math.min(Math.max(ai, 0), AISLE_XS.length - 1);
+  }
+
+  // P zone: use the aisle(s) right of M.
+  if (parsed?.prefix === "P") {
+    // P is a two-column block. Left side (P01–P14) exits to the left aisle,
+    // right side (P15–P28) exits to the right aisle.
+    const isLeftCol = parsed.num <= 14;
+    const ai = isLeftCol ? LETTERS.length : LETTERS.length + 1;
+    return Math.min(Math.max(ai, 0), AISLE_XS.length - 1);
+  }
+
+  return nearestAisleIndexByX(p.cx);
+}
+
+function getCandidateAisles(boothId) {
+  const parsed = parseBoothId(boothId);
+  const base = getBoothAisleIndex(boothId);
+  const list = [base];
+
+  const letterIndex = parsed && parsed.prefix.length === 1 ? LETTERS.indexOf(parsed.prefix) : -1;
+
+  // For A–M: allow only the safe outer aisle and (optionally) one step further outward.
+  if (letterIndex >= 0 && parsed) {
+    const isLeftCol = parsed.num <= 16;
+    // Catatan (A–M):
+    // - Default-nya kita izinkan "outer aisle" yang aman + 1 langkah outward.
+    // - Tapi khusus kolom paling kanan (M) pada sub-kolom kanan, opsi outward
+    //   mengarah ke aisle boundary ekstra di paling kanan map. Ini bikin rute
+    //   terlihat muter jauh ke kanan, jadi kita matikan opsi outward untuk kasus ini.
+    const allowOutwardRight = letterIndex < LETTERS.length - 1;
+    const outward = isLeftCol ? base - 1 : (allowOutwardRight ? base + 1 : null);
+    if (outward !== null && outward >= 0 && outward < AISLE_XS.length) list.push(outward);
+    return [...new Set(list)];
+  }
+
+  // For P: allow the chosen side aisle and one outward.
+  if (parsed?.prefix === "P") {
+    const isLeftCol = parsed.num <= 14;
+    const outward = isLeftCol ? base - 1 : base + 1;
+    if (outward >= 0 && outward < AISLE_XS.length) list.push(outward);
+    return [...new Set(list)];
+  }
+
+  // For other zones (N/O/R/X): allow nearest and adjacent.
+  const near = nearestAisleIndexByX(POS[boothId]?.cx ?? 0);
+  [near - 1, near, near + 1].forEach(ai => {
+    if (ai >= 0 && ai < AISLE_XS.length) list.push(ai);
+  });
+  return [...new Set(list)];
+}
+
+function polylineCost(pts) {
+  let cost = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1];
+    const b = pts[i];
+    cost += Math.hypot(a.cx - b.cx, a.cy - b.cy);
+  }
+  return cost;
+}
+
+function parseBoothId(id) {
+  const m = /^([A-Z]+)(\d+)$/.exec(id || "");
+  if (!m) return null;
+  return { prefix: m[1], num: parseInt(m[2], 10) };
+}
+
+function segmentIntersectsRect(a, b, rect, pad = 0) {
+  const minX = rect.x - 0.5 - pad;
+  const maxX = rect.x + rect.w + 0.5 + pad;
+  const minY = rect.y - 0.5 - pad;
+  const maxY = rect.y + rect.h + 0.5 + pad;
+
+  if (a.cx === b.cx) {
+    const x = a.cx;
+    if (x < minX || x > maxX) return false;
+    const segMinY = Math.min(a.cy, b.cy);
+    const segMaxY = Math.max(a.cy, b.cy);
+    return segMaxY >= minY && segMinY <= maxY;
+  }
+
+  if (a.cy === b.cy) {
+    const y = a.cy;
+    if (y < minY || y > maxY) return false;
+    const segMinX = Math.min(a.cx, b.cx);
+    const segMaxX = Math.max(a.cx, b.cx);
+    return segMaxX >= minX && segMinX <= maxX;
+  }
+
+  return false;
+}
+
+function pathTouchesBooths(points, ignoreIds = new Set(), pad = 8) {
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    if (!a || !b) continue;
+    for (const boothId of ALL_BOOTHS) {
+      if (ignoreIds.has(boothId)) continue;
+      const p = POS[boothId];
+      if (!p) continue;
+      const rect = { x: p.cx - BW / 2, y: p.cy - BH / 2, w: BW, h: BH };
+      if (segmentIntersectsRect(a, b, rect, pad)) return true;
+    }
+  }
+  return false;
+}
+
+function buildRoutePolylinePoints(ids) {
+  const isBooth = id => id && !id.startsWith("_a");
+  const midLineY = A_TIERS[1];
+  const FAR_AISLE_DX = 60;
+
+  const getAisleIndexFromId = id => {
+    const m = /^_a(\d+)_\d+$/.exec(id || "");
+    return m ? parseInt(m[1], 10) : null;
+  };
+
+  const getTierFromAisleId = id => {
+    const m = /^_a\d+_(\d+)$/.exec(id || "");
+    const t = m ? parseInt(m[1], 10) : NaN;
+    return Number.isFinite(t) ? t : 1;
+  };
+
+  const firstPortalId = ids.find(id => id.startsWith("_a"));
+  const lastPortalId = [...ids].reverse().find(id => id.startsWith("_a"));
+  const corridorTier = getTierFromAisleId(firstPortalId || lastPortalId);
+  const corridorY = A_TIERS[corridorTier] ?? A_TIERS[1];
+
+  // Optimasi "1 aisle" (kasus booth satu kolom/aisle):
+  // Kalau semua node aisle berada pada indeks aisle yang sama, rute paling efisien
+  // adalah garis vertikal di X aisle tersebut (tanpa naik/turun dulu ke koridor).
+  // Ini menghindari bentuk rute kotak besar yang "naik ke atas dulu lalu turun lagi".
+  const aisleIds = ids.filter(id => id.startsWith("_a"));
+  const aisleIndexes = aisleIds.map(getAisleIndexFromId).filter(v => v !== null);
+  const uniqueAisles = [...new Set(aisleIndexes)];
+  const isSingleAisle = uniqueAisles.length === 1;
+
+  const pts = [];
+  const push = p => {
+    if (!p) return;
+    const last = pts[pts.length - 1];
+    if (!last || last.cx !== p.cx || last.cy !== p.cy) pts.push(p);
+  };
+
+  // Segmen awal: dari tepi booth → menuju X aisle → lalu menuju Y koridor.
+  // Penting: segmen vertikal yang panjang harus terjadi di X aisle (bukan di dalam kolom booth)
+  // supaya tidak "memotong" booth lain.
+  if (isBooth(ids[0]) && firstPortalId) {
+    const booth = POS[ids[0]];
+    const portal = ALL_NODES[firstPortalId];
+    if (booth && portal) {
+      const side = portal.cx >= booth.cx ? 1 : -1;
+      const edge = { cx: booth.cx + side * (BW / 2 + 2), cy: booth.cy };
+      const dx = Math.abs(portal.cx - booth.cx);
+
+      push(edge);
+
+      if (isSingleAisle) {
+        // Go straight to the aisle x at current y.
+        push({ cx: portal.cx, cy: edge.cy });
+      } else {
+
+        // Kalau portal jauh (misalnya dari baris N/O), hindari garis horizontal panjang
+        // yang bisa melintas area booth. Caranya: geser dulu ke Y koridor, baru horizontal.
+        if (dx > FAR_AISLE_DX) {
+          push({ cx: edge.cx, cy: corridorY });
+          push({ cx: portal.cx, cy: corridorY });
+        } else {
+          push({ cx: portal.cx, cy: edge.cy });
+        }
+
+        push({ cx: portal.cx, cy: corridorY });
+      }
+    }
+  }
+
+  if (!isSingleAisle) {
+    // Corridor points (aisle nodes) in-order.
+    for (const id of ids) {
+      if (!id.startsWith("_a")) continue;
+      const p = ALL_NODES[id];
+      if (p) push(p);
+    }
+  }
+
+  // End segment: last portal -> vertical to booth y on aisle x -> horizontal to booth edge.
+  if (isBooth(ids[ids.length - 1]) && lastPortalId) {
+    const booth = POS[ids[ids.length - 1]];
+    const portal = ALL_NODES[lastPortalId];
+    if (booth && portal) {
+      const side = portal.cx >= booth.cx ? 1 : -1;
+      const edge = { cx: booth.cx + side * (BW / 2 + 2), cy: booth.cy };
+
+      if (isSingleAisle) {
+        // Vertical on the same aisle x directly to the booth y.
+        push({ cx: portal.cx, cy: edge.cy });
+        push({ cx: edge.cx, cy: edge.cy });
+        push(edge);
+      } else {
+        push({ cx: portal.cx, cy: corridorY });
+
+        // Selalu lakukan segmen vertikal panjang di X aisle (portal.cx),
+        // bukan di X tepi booth (edge.cx). Kalau vertikalnya terjadi di edge.cx,
+        // rute bisa dianggap menabrak booth (collision check) dan akhirnya router
+        // memilih rute lain yang terlihat muter.
+        push({ cx: portal.cx, cy: edge.cy });
+        push({ cx: edge.cx, cy: edge.cy });
+        push(edge);
+      }
+    }
+  }
+
+  return pts;
+}
+
+function aStarOnGraph(start, goal, graph) {
   if (start === goal) return [start];
-  if (!ALL_NODES[start] || !ALL_NODES[goal]) return [];
-  const h = (a, b) => { const pa = ALL_NODES[a], pb = ALL_NODES[b]; return pa && pb ? Math.hypot(pa.cx - pb.cx, pa.cy - pb.cy) : 0; };
+  if (!ALL_NODES[start] || !ALL_NODES[goal] || !graph[start] || !graph[goal]) return [];
+  const h = (a, b) => {
+    const pa = ALL_NODES[a], pb = ALL_NODES[b];
+    return pa && pb ? Math.hypot(pa.cx - pb.cx, pa.cy - pb.cy) : 0;
+  };
   const open = new Set([start]), from = {}, gS = { [start]: 0 }, fS = { [start]: h(start, goal) };
   while (open.size) {
     let cur = null, lf = Infinity;
     open.forEach(id => { const v = fS[id] ?? Infinity; if (v < lf) { lf = v; cur = id; } });
     if (cur === goal) { const p = [goal]; let n = goal; while (from[n]) { n = from[n]; p.unshift(n); } return p; }
     open.delete(cur);
-    for (const { id: nb, d } of (GRAPH[cur] || [])) {
+    for (const { id: nb, d } of (graph[cur] || [])) {
       const tg = (gS[cur] ?? Infinity) + d;
       if (tg < (gS[nb] ?? Infinity)) { from[nb] = cur; gS[nb] = tg; fS[nb] = tg + h(nb, goal); open.add(nb); }
     }
   }
-  return [start, goal];
+  return [];
+}
+
+function getBoothTier(boothId) {
+  const p = POS[boothId] || ALL_NODES[boothId];
+  if (!p) return 1;
+  return p.cy < A_TIERS[1] ? 0 : 2;
+}
+
+function getBoothPortals(boothId, tier) {
+  const bp = POS[boothId]; if (!bp) return [];
+
+  // Prevent crossing the paired booth in the same column by only allowing
+  // portals on the booth's outer side.
+  const parsed = parseBoothId(boothId);
+  const letterIndex = parsed && parsed.prefix.length === 1 ? LETTERS.indexOf(parsed.prefix) : -1;
+  const isMainHall = letterIndex >= 0;
+
+  let allowedAisles = null;
+  if (isMainHall && parsed) {
+    const side = parsed.num <= 16 ? "L" : "R";
+    allowedAisles = [side === "L" ? letterIndex : letterIndex + 1];
+  } else if (parsed?.prefix === "P") {
+    const side = parsed.num <= 14 ? "L" : "R";
+    allowedAisles = [side === "L" ? LETTERS.length : LETTERS.length + 1];
+  }
+
+  const candidates = allowedAisles
+    ? allowedAisles.map(ai => ({ ai, dx: Math.abs(bp.cx - AISLE_XS[ai]) }))
+    : AISLE_XS.map((ax, ai) => ({ ai, dx: Math.abs(bp.cx - ax) })).sort((a, b) => a.dx - b.dx).slice(0, 2);
+
+  return candidates
+    .filter(({ dx }) => dx <= CW_CLUSTER * 1.5)
+    .map(({ ai }) => `_a${ai}_${tier}`)
+    .filter(id => ALL_NODES[id]);
+}
+
+function aStar(start, goal) {
+  if (start === goal) return [start];
+  if (!POS[start] || !POS[goal]) return [];
+
+  const startTier = getBoothTier(start);
+  const goalTier = getBoothTier(goal);
+
+  // Pemilihan koridor horizontal (tier):
+  // - Jika start & goal ada di setengah yang sama (atas-atas / bawah-bawah),
+  //   kita coba tier tepi (0 untuk atas / 2 untuk bawah) DAN tier tengah (1),
+  //   lalu pilih yang jarak vertikal totalnya paling kecil (lebih efisien),
+  //   selama tidak menabrak booth.
+  // - Jika beda setengah (atas ↔ bawah), kita tidak selalu memaksa tier-1.
+  //   Kita urutkan [0,1,2] berdasarkan jarak vertikal total + tie-break,
+  //   lalu ambil yang lolos collision-check.
+  const boothDistToTier = (boothId, tier) => {
+    const p = POS[boothId];
+    const y = A_TIERS[tier];
+    return p && Number.isFinite(y) ? Math.abs(p.cy - y) : Infinity;
+  };
+
+  let tiersToTry;
+  if (startTier === goalTier) {
+    const candidates = startTier === 0 ? [0, 1] : [2, 1];
+    tiersToTry = [...new Set(candidates)]
+      .filter(t => t === 0 || t === 1 || t === 2)
+      .sort((a, b) => (
+        boothDistToTier(start, a) + boothDistToTier(goal, a)
+      ) - (
+        boothDistToTier(start, b) + boothDistToTier(goal, b)
+      ));
+  } else {
+    // Tie-break: kalau jaraknya sama, prioritaskan tier yang "searah" dengan start/goal.
+    const prefRank = t => (t === startTier ? 0 : (t === goalTier ? 1 : (t === 1 ? 2 : 3)));
+    tiersToTry = [0, 1, 2]
+      .filter(t => t === 0 || t === 1 || t === 2)
+      .sort((a, b) => {
+        const da = boothDistToTier(start, a) + boothDistToTier(goal, a);
+        const db = boothDistToTier(start, b) + boothDistToTier(goal, b);
+        if (da !== db) return da - db;
+        return prefRank(a) - prefRank(b);
+      });
+  }
+
+  const startAisles = getCandidateAisles(start);
+  const goalAisles = getCandidateAisles(goal);
+
+  // Supaya rute tidak "kabur" ke aisle jauh (mis. boundary kanan),
+  // kita tambahkan penalti kecil kalau memilih aisle selain base aisle booth.
+  const baseStartAisle = getBoothAisleIndex(start);
+  const baseGoalAisle = getBoothAisleIndex(goal);
+  const AISLE_DETOUR_PENALTY = 18;
+
+  let best = null;
+  let bestCost = Infinity;
+
+  // Clearance pads: try strict first, relax only if needed so we don't end up
+  // with “no route rendered”.
+  const pads = [6, 4, 2, 0];
+
+  let bestEffort = null;
+  let bestEffortCost = Infinity;
+
+  for (const tier of tiersToTry) {
+    for (const sAi of startAisles) {
+      const sPortal = `_a${sAi}_${tier}`;
+      if (!ALL_NODES[sPortal]) continue;
+
+      for (const gAi of goalAisles) {
+        const gPortal = `_a${gAi}_${tier}`;
+        if (!ALL_NODES[gPortal]) continue;
+
+        const ids = [start];
+        if (sAi <= gAi) {
+          for (let ai = sAi; ai <= gAi; ai++) ids.push(`_a${ai}_${tier}`);
+        } else {
+          for (let ai = sAi; ai >= gAi; ai--) ids.push(`_a${ai}_${tier}`);
+        }
+        ids.push(goal);
+
+        const pts = buildRoutePolylinePoints(ids);
+        if (pts.length < 2) continue;
+
+        const detourPenalty = AISLE_DETOUR_PENALTY * (
+          Math.abs(sAi - baseStartAisle) +
+          Math.abs(gAi - baseGoalAisle)
+        );
+        const cost = polylineCost(pts) + detourPenalty;
+        if (cost < bestEffortCost) { bestEffortCost = cost; bestEffort = ids; }
+
+        for (const pad of pads) {
+          if (pathTouchesBooths(pts, new Set([start, goal]), pad)) continue;
+          if (cost < bestCost) {
+            bestCost = cost;
+            best = ids;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // Prefer a valid non-overlapping route; otherwise return the best-effort route
+  // so the UI always renders something instead of disappearing.
+  if (best) return best;
+  if (bestEffort) return bestEffort;
+
+  // Hard fallback: still return a corridor-based route so svgPath() has portals
+  // and the line doesn't disappear.
+  const fallbackTier = startTier === goalTier ? startTier : 1;
+  const fallbackS = startAisles[0] ?? getBoothAisleIndex(start);
+  const fallbackG = goalAisles[0] ?? getBoothAisleIndex(goal);
+  const fallbackIds = [start];
+  if (fallbackS <= fallbackG) {
+    for (let ai = fallbackS; ai <= fallbackG; ai++) fallbackIds.push(`_a${ai}_${fallbackTier}`);
+  } else {
+    for (let ai = fallbackS; ai >= fallbackG; ai--) fallbackIds.push(`_a${ai}_${fallbackTier}`);
+  }
+  fallbackIds.push(goal);
+  return fallbackIds;
 }
 
 function svgPath(ids) {
   if (ids.length < 2) return "";
-  const pts = ids.map(id => ALL_NODES[id]).filter(Boolean);
+  const pts = buildRoutePolylinePoints(ids);
   if (pts.length < 2) return "";
   let d = `M${pts[0].cx},${pts[0].cy}`;
-  for (let i = 1; i < pts.length - 1; i++) { const mx = (pts[i].cx + pts[i + 1].cx) / 2, my = (pts[i].cy + pts[i + 1].cy) / 2; d += ` Q${pts[i].cx},${pts[i].cy} ${mx},${my}`; }
-  return d + ` L${pts[pts.length - 1].cx},${pts[pts.length - 1].cy}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L${pts[i].cx},${pts[i].cy}`;
+  }
+  return d;
 }
 
 // ─── TENANTS ─────────────────────────────────────────────────────────────────
