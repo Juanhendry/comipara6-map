@@ -5,8 +5,10 @@ public/uploads/
 # Environment variables (contain secrets)
 .env.local
 .env*.local
+
+# Accidental commits
 _Tutorial2-Supabase.md
 _Supabase-connect.md
-_Supabase-connect.md
-_Supabase-connect.md
+_TUTORIAL.md
+backup.zip
 _Security_walkthrough.md
