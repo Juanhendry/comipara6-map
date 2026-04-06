@@ -23,7 +23,7 @@ Migrasi backend dari JSON file-based storage ke Supabase (database + storage) ag
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://nnpxmjaohdvmuaqcskib.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_ZOO9D5C68DqE4t_1s6X5Cg_PV6_T5qo
-SUPABASE_SECRET_KEY=sb_secret_nfIcQSzmufBebPWs6uHrng_aTViNI2x
+SUPABASE_SECRET_KEY=<YOUR_SUPABASE_SECRET_KEY>
 ```
 
 #### [MODIFY] `.gitignore`

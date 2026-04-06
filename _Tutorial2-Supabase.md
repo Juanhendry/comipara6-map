@@ -157,7 +157,7 @@ File `.env.local` sudah dibuat di root project:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://nnpxmjaohdvmuaqcskib.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_ZOO9D5C68DqE4t_1s6X5Cg_PV6_T5qo
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_nfIcQSzmufBebPWs6uHrng_aTViNI2x
+SUPABASE_SERVICE_ROLE_KEY=<YOUR_SUPABASE_SERVICE_ROLE_KEY>
 ```
 
 > ⚠️ **PENTING**: File `.env.local` sudah di-`.gitignore` dan TIDAK akan masuk ke repository.
@@ -172,7 +172,7 @@ SUPABASE_SERVICE_ROLE_KEY=sb_secret_nfIcQSzmufBebPWs6uHrng_aTViNI2x
 |------|-------|--------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://nnpxmjaohdvmuaqcskib.supabase.co` | Production, Preview, Development |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_ZOO9D5C68DqE4t_1s6X5Cg_PV6_T5qo` | Production, Preview, Development |
-| `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_nfIcQSzmufBebPWs6uHrng_aTViNI2x` | Production, Preview, Development |
+| `SUPABASE_SERVICE_ROLE_KEY` | `<YOUR_SUPABASE_SERVICE_ROLE_KEY>` | Production, Preview, Development |
 
 4. Klik **Save** untuk setiap variable
 
