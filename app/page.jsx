@@ -1,8 +1,8 @@
 import FloorMap from "@/components/FloorMap";
 
 export const metadata = {
-  title: "Comipara 6 — Floor Map",
-  description: "Peta interaktif booth Comipara 6",
+  title: "Interactive Floor Map",
+  description: "Jelajahi denah booth artist dan lingkaran kreator (cirles) yang hadir di ajang Comipara 6. Klik pada booth spesifik untuk melihat katalog karya dan detail kreator.",
 };
 
 export default function Home() {
