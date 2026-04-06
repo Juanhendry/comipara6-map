@@ -1,3 +1,7 @@
 node_modules/
 .next/
 public/uploads/
+
+# Environment variables (contain secrets)
+.env.local
+.env*.local

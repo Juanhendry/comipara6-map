@@ -191,12 +191,14 @@ export default function Dashboard() {
     router.push("/cp6-staff");
   }
 
-  async function persistUsers(updated) {
+  async function persistUsers(updated, changedIds) {
     setUsers(updated);
-    // Sync to server
+    // Sync only changed users to server
     try{
-      // We do a full replace via PUT for simplicity
-      for(const u of updated){
+      const toSync = changedIds
+        ? updated.filter(u => changedIds.includes(u.id))
+        : updated;
+      for(const u of toSync){
         await fetch("/api/users", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -250,7 +252,7 @@ export default function Dashboard() {
       const res = await fetch("/api/catalog", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: myData.id, catalogId: item.id, url: item.url }),
+        body: JSON.stringify({ userId: myData.id, catalogId: item.id }),
       });
       const updated = await res.json();
       setCatalog(updated);
@@ -293,7 +295,7 @@ export default function Dashboard() {
   async function saveMyFandoms(newFandoms) {
     if(!myData) return;
     const updated = users.map(u=>u.id===myData.id ? {...u, fandoms:newFandoms} : u);
-    await persistUsers(updated);
+    await persistUsers(updated, [myData.id]);
     showToast("Fandom berhasil disimpan");
   }
 
@@ -341,7 +343,7 @@ export default function Dashboard() {
       if(u.id!==userId) return u;
       return { ...u, booths:[...new Set([...u.booths,booth])] };
     });
-    persistUsers(newUsers);
+    persistUsers(newUsers, [userId]);
     return { ok:true };
   }
 
@@ -350,7 +352,7 @@ export default function Dashboard() {
       if(u.id!==userId) return u;
       return { ...u, booths:u.booths.filter(b=>b!==booth) };
     });
-    persistUsers(newUsers);
+    persistUsers(newUsers, [userId]);
     showToast(`Booth ${booth} berhasil dihapus`);
   }
 
@@ -816,7 +818,7 @@ function FandomManager({ fandoms, onAdd, onDelete }) {
 
 // ─── EDIT USER FORM ────────────────────────────────────────────────────────
 function EditUserForm({ user, onSave, isSuperAdmin, fandoms }) {
-  const [form,       setForm]       = useState({ ...user });
+  const [form,       setForm]       = useState({ ...user, password: "" });
   const [selFandoms, setSelFandoms] = useState(user.fandoms||[]);
   const [showPass,   setShowPass]   = useState(false);
 

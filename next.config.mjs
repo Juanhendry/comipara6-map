@@ -7,22 +7,19 @@ const nextConfig = {
 
   // Image optimization settings
   images: {
-    // Allow serving uploaded images
+    // Allow serving uploaded images from Supabase Storage
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "nnpxmjaohdvmuaqcskib.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
 
   // Production-optimized standalone output
   output: "standalone",
-
-  // Cache static assets aggressively
-  headers: async () => [
-    {
-      source: "/uploads/:path*",
-      headers: [
-        { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-      ],
-    },
-  ],
 };
 
 export default nextConfig;

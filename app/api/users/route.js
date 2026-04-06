@@ -1,16 +1,14 @@
-import { getUsers, saveUsers } from "@/lib/dataStore";
-import { getCatalog } from "@/lib/dataStore";
-import { getPrices } from "@/lib/dataStore";
+import { getUsers, createUser, updateUser, deleteUser } from "@/lib/dataStore";
 
-// GET /api/users — returns all users (without passwords for public, with passwords for admin)
+// GET /api/users — returns all users
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const includeAuth = searchParams.get("auth") === "1";
-  const users = getUsers();
+  const users = await getUsers();
 
   if (includeAuth) {
-    // Dashboard/admin needs passwords for auth check
-    return Response.json(users);
+    // Dashboard/admin — include email & role but NEVER password
+    return Response.json(users.map(({ password, ...u }) => u));
   }
 
   // Public map only needs: id, name, booths, fandoms
@@ -18,23 +16,36 @@ export async function GET(request) {
   return Response.json(publicUsers);
 }
 
-// POST /api/users — add a new user
+// POST /api/users — add a new user (password will be hashed by dataStore)
 export async function POST(request) {
-  const body = await request.json();
-  const users = getUsers();
-  const newUser = { id: Date.now() + Math.random(), ...body, booths: body.booths || [], fandoms: body.fandoms || [] };
-  users.push(newUser);
-  saveUsers(users);
-  return Response.json(newUser, { status: 201 });
+  try {
+    const body = await request.json();
+    const newUser = await createUser({
+      name: body.name,
+      email: body.email,
+      password: body.password || "user123",
+      role: body.role || "user",
+      booths: body.booths || [],
+      fandoms: body.fandoms || [],
+    });
+    // Don't return password hash
+    const { password: _, ...safeUser } = newUser;
+    return Response.json(safeUser, { status: 201 });
+  } catch (err) {
+    return Response.json({ error: err.message || "Failed to create user" }, { status: 400 });
+  }
 }
 
 // PUT /api/users — update a user
 export async function PUT(request) {
-  const body = await request.json();
-  let users = getUsers();
-  users = users.map(u => u.id === body.id ? { ...u, ...body } : u);
-  saveUsers(users);
-  return Response.json({ ok: true });
+  try {
+    const body = await request.json();
+    if (!body.id) return Response.json({ error: "Missing id" }, { status: 400 });
+    await updateUser(body.id, body);
+    return Response.json({ ok: true });
+  } catch (err) {
+    return Response.json({ error: err.message || "Failed to update user" }, { status: 400 });
+  }
 }
 
 // DELETE /api/users — delete a user
@@ -42,8 +53,10 @@ export async function DELETE(request) {
   const { searchParams } = new URL(request.url);
   const id = Number(searchParams.get("id"));
   if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
-  let users = getUsers();
-  users = users.filter(u => u.id !== id);
-  saveUsers(users);
-  return Response.json({ ok: true });
+  try {
+    await deleteUser(id);
+    return Response.json({ ok: true });
+  } catch (err) {
+    return Response.json({ error: err.message || "Failed to delete user" }, { status: 400 });
+  }
 }
