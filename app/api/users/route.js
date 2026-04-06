@@ -1,4 +1,5 @@
 import { getUsers, createUser, updateUser, deleteUser } from "@/lib/dataStore";
+import { withSanitization } from "@/lib/security";
 
 // GET /api/users — returns all users
 export async function GET(request) {
@@ -17,7 +18,7 @@ export async function GET(request) {
 }
 
 // POST /api/users — add a new user (password will be hashed by dataStore)
-export async function POST(request) {
+async function RawPOST(request) {
   try {
     const body = await request.json();
     const newUser = await createUser({
@@ -36,8 +37,10 @@ export async function POST(request) {
   }
 }
 
+export const POST = withSanitization(RawPOST);
+
 // PUT /api/users — update a user
-export async function PUT(request) {
+async function RawPUT(request) {
   try {
     const body = await request.json();
     if (!body.id) return Response.json({ error: "Missing id" }, { status: 400 });
@@ -47,6 +50,7 @@ export async function PUT(request) {
     return Response.json({ error: err.message || "Failed to update user" }, { status: 400 });
   }
 }
+export const PUT = withSanitization(RawPUT);
 
 // DELETE /api/users — delete a user
 export async function DELETE(request) {

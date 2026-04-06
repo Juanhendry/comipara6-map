@@ -1,5 +1,6 @@
 import { getCatalog, addCatalogItem, deleteCatalogItem, uploadCatalogFile } from "@/lib/dataStore";
 import sharp from "sharp";
+import { withUploadHardening } from "@/lib/security";
 
 // GET /api/catalog?userId=X
 export async function GET(request) {
@@ -11,7 +12,7 @@ export async function GET(request) {
 }
 
 // POST /api/catalog — upload images (FormData with files + userId)
-export async function POST(request) {
+async function RawPOST(request) {
   const formData = await request.formData();
   const userId = formData.get("userId");
   if (!userId) return Response.json({ error: "Missing userId" }, { status: 400 });
@@ -50,6 +51,8 @@ export async function POST(request) {
   const catalog = await getCatalog(numericUserId);
   return Response.json(catalog);
 }
+
+export const POST = withUploadHardening(RawPOST);
 
 // DELETE /api/catalog — delete an image (body: { userId, catalogId })
 export async function DELETE(request) {
