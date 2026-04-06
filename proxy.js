@@ -8,27 +8,6 @@ export function proxy(request) {
   const { pathname } = request.nextUrl;
   const response = NextResponse.next();
 
-  // 1. Proteksi Basic Auth untuk halaman login staff
-  if (pathname.startsWith("/cp6-staff")) {
-    const basicAuth = request.headers.get("authorization");
-    if (!basicAuth) {
-      return new NextResponse("Authentication required", {
-        status: 401,
-        headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
-      });
-    }
-
-    // Fallback `admin:comipara6` sesuai persetujuan
-    const authValue = process.env.STAFF_AUTH_CREDENTIALS || "admin:comipara6";
-    const expected = `Basic ${btoa(authValue)}`;
-    if (basicAuth !== expected) {
-      return new NextResponse("Authentication failed", {
-        status: 401,
-        headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
-      });
-    }
-  }
-
   // 2. IP Rate Limiting & Strict CORS untuk route /api
   if (pathname.startsWith("/api/")) {
     const ip = request.ip || request.headers.get("x-forwarded-for") || "unknown";
