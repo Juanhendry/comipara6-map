@@ -1,5 +1,7 @@
-import { getCatalog, addCatalogItem, deleteCatalogItem, uploadCatalogFile } from "@/lib/dataStore";
+import { getCatalog, addCatalogItem, deleteCatalogItem } from "@/lib/dataStore";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import sharp from "sharp";
+import path from "path";
 import { withUploadHardening } from "@/lib/security";
 
 // GET /api/catalog?userId=X
@@ -18,7 +20,8 @@ async function RawPOST(request) {
   if (!userId) return Response.json({ error: "Missing userId" }, { status: 400 });
 
   const numericUserId = Number(userId);
-  const results = [];
+  const uploadDir = path.join(process.cwd(), "public", "uploads", String(numericUserId));
+  await mkdir(uploadDir, { recursive: true });
 
   const files = formData.getAll("files");
   for (const file of files) {
@@ -28,26 +31,24 @@ async function RawPOST(request) {
       const timestamp = Date.now();
       const safeName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
       const filename = `${timestamp}_${safeName}.webp`;
+      const filePath = path.join(uploadDir, filename);
 
-      // Convert to WebP using sharp (server-side guarantee)
       const inputBuffer = Buffer.from(await file.arrayBuffer());
       const webpBuffer = await sharp(inputBuffer)
         .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
         .webp({ quality: 75 })
         .toBuffer();
 
-      // Upload to Supabase Storage
-      const { url, storagePath } = await uploadCatalogFile(numericUserId, filename, webpBuffer);
+      await writeFile(filePath, webpBuffer);
 
-      // Save metadata in database
-      const item = await addCatalogItem(numericUserId, file.name, url, storagePath);
-      results.push(item);
+      const url = `/uploads/${numericUserId}/${filename}`;
+      const storagePath = `${numericUserId}/${filename}`;
+      await addCatalogItem(numericUserId, file.name, url, storagePath);
     } catch (err) {
       console.error("Upload error for file:", file.name, err);
     }
   }
 
-  // Return full catalog after all uploads
   const catalog = await getCatalog(numericUserId);
   return Response.json(catalog);
 }
@@ -60,7 +61,11 @@ export async function DELETE(request) {
   if (!userId || !catalogId) return Response.json({ error: "Missing fields" }, { status: 400 });
 
   try {
-    await deleteCatalogItem(catalogId);
+    const item = await deleteCatalogItem(catalogId);
+    if (item?.storage_path) {
+      const filePath = path.join(process.cwd(), "public", "uploads", item.storage_path);
+      await unlink(filePath).catch(() => {});
+    }
   } catch (err) {
     console.error("Delete catalog error:", err);
   }

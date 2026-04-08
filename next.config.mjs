@@ -5,17 +5,14 @@ const nextConfig = {
   // Enable gzip/brotli compression
   compress: true,
 
-  // Image optimization settings
+  // Allow Replit's proxied preview domain to access dev HMR resources
+  allowedDevOrigins: process.env.REPLIT_DEV_DOMAIN
+    ? [process.env.REPLIT_DEV_DOMAIN]
+    : [],
+
+  // Image optimization — all images are now served locally
   images: {
-    // Allow serving uploaded images from Supabase Storage
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "nnpxmjaohdvmuaqcskib.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-    ],
   },
 
   // Global Security Headers
@@ -30,7 +27,7 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
-          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://*.supabase.in;" }
+          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:;" }
         ]
       }
     ];
