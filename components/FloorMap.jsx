@@ -768,6 +768,9 @@ export default function FloorMap() {
   const lastDist = useRef(null);
   const pinching = useRef(false);
   const clickTimer = useRef(null);
+  const mouseDragging = useRef(false);
+  const wasDragging = useRef(false);
+  const mouseStart = useRef(null);
   const searchRef = useRef(null);
 
   //
@@ -852,12 +855,37 @@ export default function FloorMap() {
       e.preventDefault(); const rect = el.getBoundingClientRect(); const mx = e.clientX - rect.left, my = e.clientY - rect.top; const ds = e.deltaY < 0 ? 1.12 : 0.9;
       setScale(ps => { const ns = Math.min(Math.max(ps * ds, 0.25), 5); const c = clamp(mx - (mx - tx) * (ns / ps), my - (my - ty) * (ns / ps), ns, gW(), gH()); setTx(c.x); setTy(c.y); return ns; });
     };
+    const onMD = e => {
+      if (e.button !== 0) return;
+      mouseDragging.current = true;
+      wasDragging.current = false;
+      mouseStart.current = { x: e.clientX, y: e.clientY };
+      el.style.cursor = "grabbing";
+    };
+    const onMM = e => {
+      if (!mouseDragging.current) return;
+      const dx = e.clientX - (mouseStart.current?.x || e.clientX);
+      const dy = e.clientY - (mouseStart.current?.y || e.clientY);
+      if (!wasDragging.current && Math.hypot(dx, dy) > 4) wasDragging.current = true;
+      if (wasDragging.current) {
+        setTx(px => clamp(px + dx, 0, scale, gW(), gH()).x);
+        setTy(py => clamp(0, py + dy, scale, gW(), gH()).y);
+        mouseStart.current = { x: e.clientX, y: e.clientY };
+      }
+    };
+    const onMU = () => { mouseDragging.current = false; el.style.cursor = "grab"; };
+
     el.addEventListener("touchstart", onTS, { passive: false }); el.addEventListener("touchmove", onTM, { passive: false }); el.addEventListener("touchend", onTE); el.addEventListener("wheel", onW, { passive: false });
-    return () => { el.removeEventListener("touchstart", onTS); el.removeEventListener("touchmove", onTM); el.removeEventListener("touchend", onTE); el.removeEventListener("wheel", onW); };
+    el.addEventListener("mousedown", onMD); el.addEventListener("mousemove", onMM); el.addEventListener("mouseup", onMU); el.addEventListener("mouseleave", onMU);
+    return () => {
+      el.removeEventListener("touchstart", onTS); el.removeEventListener("touchmove", onTM); el.removeEventListener("touchend", onTE); el.removeEventListener("wheel", onW);
+      el.removeEventListener("mousedown", onMD); el.removeEventListener("mousemove", onMM); el.removeEventListener("mouseup", onMU); el.removeEventListener("mouseleave", onMU);
+    };
   }, [scale, tx, ty]);
 
   // Booth click: single=select group, double=modal
   function handleBoothClick(id) {
+    if (wasDragging.current) { wasDragging.current = false; return; }
     if (tab === "path") {
       if (!pathFrom) { setPathFrom(id); return; }
       if (!pathTo && id !== pathFrom) { setPathTo(id); return; }
@@ -1099,7 +1127,7 @@ export default function FloorMap() {
       </div>
 
       {/* ── MAP ── */}
-      <div ref={containerRef} style={{ flex:1, overflow:"hidden", position:"relative", userSelect:"none", touchAction:"none", background:"#D4D0C4", minHeight:0 }}>
+      <div ref={containerRef} style={{ flex:1, overflow:"hidden", position:"relative", userSelect:"none", touchAction:"none", background:"#D4D0C4", minHeight:0, cursor:"grab" }}>
         <svg width="100%" height="100%" style={{ display:"block" }}>
           <defs>
             <pattern id="dotGrid" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
