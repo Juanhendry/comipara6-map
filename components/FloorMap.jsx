@@ -1,5 +1,11 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import {
+  POS, ALL_BOOTHS, ALL_NODES, GRAPH, ALLEY_GRAPH,
+  AISLE_XS, A_TIERS, AISLE_NODES,
+  BW, BH, BG, INNER, AISLE, SX, UY, LY, CW_CLUSTER,
+  CW, CH, LETTERS, ZONE_CONFIG, midY, pad,
+} from "@/lib/map-geometry";
 
 // ─── SHARED DATA (loaded from API) ───────────────────────────────────────────
 const DEFAULT_FANDOMS = ["Genshin Impact", "Honkai Star Rail", "Blue Archive", "Hololive", "Nijisanji", "Attack on Titan", "Demon Slayer", "Jujutsu Kaisen", "One Piece", "Naruto", "BTS", "ENHYPEN", "SEVENTEEN", "Stray Kids", "NewJeans", "Valorant", "League of Legends", "Minecraft", "Elden Ring", "Final Fantasy", "My Hero Academia", "Spy x Family", "Chainsaw Man", "Frieren", "Bocchi the Rock", "Vtuber Original", "Original Art", "Webtoon", "Light Novel", "Cosplay", "Arknights", "Honkai Impact", "Gachiakuta", "Gakuen Idolmaster", "Arknights Endfield"];
@@ -8,201 +14,6 @@ function getSearchCounts() { try { return JSON.parse(localStorage.getItem("cp6_s
 function incrementSearch(f) { const c = getSearchCounts(); c[f] = (c[f] || 0) + 1; localStorage.setItem("cp6_sc", JSON.stringify(c)); }
 function getTopFandoms(fandoms, n = 12) { const c = getSearchCounts(); return [...fandoms].sort((a, b) => (c[b] || 0) - (c[a] || 0)).slice(0, n); }
 
-// ─── KONFIGURASI BOOTH R (Community Area) ────────────────────────────────────
-// Edit nilai di sini untuk mengatur posisi & ukuran U-shape booth R01–R12.
-// Tidak perlu menyentuh bagian lain.
-const R_CONFIG = {
-  // Offset dari tepi kiri Community Area (Community Area mulai di SX+585)
-  offsetX: 15,       // geser U ke kanan dari tepi kiri community area
-
-  // Offset dari tepi atas strip bawah (STRIP_Y)
-  offsetY: 55,       // ← TURUNKAN NILAI INI untuk turun, naikkan untuk naik
-
-  // Jarak antar booth di baris bawah (R02–R10)
-  stepX: 35,         // jarak horizontal antar booth baris bawah
-
-  // Jarak vertikal antara baris atas (lengan) dan baris bawah
-  armToBot: 46,      // ← jarak lengan kiri/kanan ke baris bawah
-};
-
-// ─── KONFIGURASI ZONE AREAS (bottom strip) ───────────────────────────────────
-// Edit offsetX (posisi kiri), w (lebar), h (tinggi) masing-masing zona di sini.
-// h: null  → pakai stripHeight otomatis
-// h: angka → tinggi custom dalam pixel
-// stripHeight: total tinggi area bawah map (guild, comic, visitor, community)
-//              ← UBAH INI jika ingin strip lebih pendek/tinggi
-const ZONE_CONFIG = {
-  stripHeight:    120,                             // ← tinggi strip bawah (px)
-  guildArea:      { offsetX: -10, w: 310, h: null },  // Guild Area
-  comicClass:     { offsetX: 305, w: 175, h: null },  // Comic Class Area
-  visitorStorage: { offsetX: 485, w: 95,  h: null },  // Visitor Storage
-  communityArea:  { offsetX: 585, w: 340, h: null },  // Community Area
-};
-
-// ─── GEOMETRY ─────────────────────────────────────────────────────────────────
-// Reference layout: N01-N14 top-left, then gap (bathroom label), then O01-O16 top-right
-// Main hall: A-M columns (13 cols), each col has 2 sub-cols × 32 rows (split upper/lower)
-// P zone: right of M col (P01-P28, grouped)
-// X zones: special areas on right side
-const LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"];
-const pad = n => String(n).padStart(2, "0");
-const BW = 30, BH = 22, BG = 2;
-const INNER = 3;
-const AISLE = 30;
-const SX = 70;
-const ROW_Y = 20;
-const UY = 68;
-const LY = 345;
-const CW_CLUSTER = 2 * (BW + INNER) + AISLE;
-
-function buildPositions() {
-  const pos = {};
-
-  // N01–N14: 1 cluster rapat berjejer ke kanan dari SX, tanpa aisle gap antar booth
-  for (let i = 1; i <= 14; i++) {
-    pos["N" + pad(i)] = { cx: SX + (i - 1) * (BW + INNER) + BW / 2, cy: ROW_Y + BH / 2 };
-  }
-  const N_RIGHT = SX + 14 * (BW + INNER); // ujung kanan N14
-
-  // O01–O16: 1 cluster rapat berjejer, dimulai setelah gap bathroom label dari N14
-  const BATHROOM_GAP = 90; // gap untuk label bathroom
-  const OX = N_RIGHT + BATHROOM_GAP;
-  for (let i = 1; i <= 16; i++) {
-    pos["O" + pad(i)] = { cx: OX + (i - 1) * (BW + INNER) + BW / 2, cy: ROW_Y + BH / 2 };
-  }
-
-  // Main hall booths A–M: each letter = 1 cluster (left col + right col), 32 booths per letter
-  // Upper half: rows 9-16 (left col) and 17-24 (right col), top to bottom
-  // Lower half: rows 1-8 (left col, bottom to top) and 25-32 (right col, top to bottom)
-  LETTERS.forEach((l, li) => {
-    const clX = SX + li * CW_CLUSTER;
-    const lx = clX, rx = clX + BW + INNER;
-    [16, 15, 14, 13, 12, 11, 10, 9].forEach((n, ri) => { pos[l + pad(n)] = { cx: lx + BW / 2, cy: UY + ri * (BH + BG) + BH / 2 }; });
-    [17, 18, 19, 20, 21, 22, 23, 24].forEach((n, ri) => { pos[l + pad(n)] = { cx: rx + BW / 2, cy: UY + ri * (BH + BG) + BH / 2 }; });
-    [8, 7, 6, 5, 4, 3, 2, 1].forEach((n, ri) => { pos[l + pad(n)] = { cx: lx + BW / 2, cy: LY + ri * (BH + BG) + BH / 2 }; });
-    [25, 26, 27, 28, 29, 30, 31, 32].forEach((n, ri) => { pos[l + pad(n)] = { cx: rx + BW / 2, cy: LY + ri * (BH + BG) + BH / 2 }; });
-  });
-
-  // P zone: right of M column, 3 groups matching reference (P14-P15 top, down to P01-P28)
-  const PX = SX + LETTERS.length * CW_CLUSTER + 20;
-  // Reference: P14,P15 / P13,P16 / P12,P17 / P11,P18 / P10,P19  (group1: upper)
-  //            P09,P20 / P08,P21 / P07,P22 / P06,P23             (group2: gap)
-  //            P05,P24 / P04,P25 / P03,P26 / P02,P27 / P01,P28  (group3: lower)
-  const pg = [[[14, 15], [13, 16], [12, 17], [11, 18], [10, 19]], [[9, 20], [8, 21], [7, 22], [6, 23]], [[5, 24], [4, 25], [3, 26], [2, 27], [1, 28]]];
-  let pr = 0;
-  pg.forEach((g, gi) => { if (gi > 0) pr += 1.5; g.forEach(([l, r]) => { const cy = UY + pr * (BH + BG) + BH / 2; pos["P" + pad(l)] = { cx: PX + BW / 2, cy }; pos["P" + pad(r)] = { cx: PX + BW + INNER + BW / 2, cy }; pr++; }); });
-
-  // R01–R12: U-shape inside Community Area — atur via R_CONFIG di atas
-  const R_STRIP_Y = LY + 8 * (BH + BG) + 38;
-  const COMM_X = SX + ZONE_CONFIG.communityArea.offsetX;   // tepi kiri Community Area
-  const R_LEFT_X  = COMM_X + R_CONFIG.offsetX;
-  const R_RIGHT_X = R_LEFT_X + 9 * R_CONFIG.stepX;        // setelah 9 slot bawah (R02–R10)
-  const R_TOP_Y   = R_STRIP_Y + R_CONFIG.offsetY;
-  const R_BOT_Y   = R_TOP_Y + R_CONFIG.armToBot;
-
-  // R01: lengan kiri
-  pos["R" + pad(1)] = { cx: R_LEFT_X + BW / 2, cy: R_TOP_Y + BH / 2 };
-  // R02–R10: baris bawah
-  for (let i = 2; i <= 10; i++) {
-    pos["R" + pad(i)] = { cx: R_LEFT_X + (i - 2) * R_CONFIG.stepX + BW / 2, cy: R_BOT_Y + BH / 2 };
-  }
-  // R11–R12: lengan kanan (2 booth ditumpuk)
-  pos["R" + pad(11)] = { cx: R_RIGHT_X + BW / 2, cy: R_TOP_Y + BH / 2 };
-  pos["R" + pad(12)] = { cx: R_RIGHT_X + BW / 2, cy: R_TOP_Y + BH + BG + 2 + BH / 2 };
-
-  // X01 booth: inside Visitor Storage zone
-  pos["X01"] = { cx: SX + 250, cy: LY + 8 * (BH + BG) + 38 + 106 }; // center of Visitor Storage
-
-  // X02 booth: inside Guild Area (far left of bottom strip)
-  pos["X02"] = { cx: SX + 20, cy: LY + 8 * (BH + BG) + 38 + 104 };
-
-  return pos;
-}
-const POS = buildPositions();
-const CW = Math.max(...Object.values(POS).map(p => p.cx)) + 500;
-// CH: tinggi canvas = posisi booth terbawah + jarak ke strip + stripHeight + padding bawah
-// Ubah ZONE_CONFIG.stripHeight untuk mengatur tinggi area bawah (guild, comic, dll)
-const CH = Math.max(...Object.values(POS).map(p => p.cy)) + 38 + ZONE_CONFIG.stripHeight + -100;
-// ─── AISLE WAYPOINTS ──────────────────────────────────────────────────────────
-// Posisi jalur horizontal bagian atas.
-// Digeser sedikit lebih turun (UY-20 → UY-18) supaya tidak terlalu mepet
-// ke booth N/O saat pengecekan tabrakan memakai padding.
-const A_TOP_Y = UY - 18;
-const A_MID_Y = (UY + 8 * (BH + BG) + LY) / 2;
-const A_BOT_Y = LY + 8 * (BH + BG) + 18;
-const A_TIERS = [A_TOP_Y, A_MID_Y, A_BOT_Y];
-
-const AISLE_XS = [];
-for (let li = 0; li <= LETTERS.length; li++) {
-  const clX = SX + li * CW_CLUSTER;
-  AISLE_XS.push(clX - AISLE / 2);
-}
-AISLE_XS.push(SX + LETTERS.length * CW_CLUSTER + 10);
-
-const AISLE_NODES = {};
-AISLE_XS.forEach((ax, ai) => {
-  A_TIERS.forEach((ay, ti) => {
-    AISLE_NODES[`_a${ai}_${ti}`] = { cx: ax, cy: ay };
-  });
-});
-
-const ALL_NODES = { ...POS, ...AISLE_NODES };
-
-// ─── GRAPH ────────────────────────────────────────────────────────────────────
-function getAllBooths() {
-  const ids = [];
-  for (let i = 1; i <= 14; i++) ids.push("N" + pad(i));
-  for (let i = 1; i <= 16; i++) ids.push("O" + pad(i));
-  LETTERS.forEach(l => { for (let n = 1; n <= 32; n++) ids.push(l + pad(n)); });
-  for (let i = 1; i <= 28; i++) ids.push("P" + pad(i));
-  for (let i = 1; i <= 12; i++) ids.push("R" + pad(i));
-  ids.push("X01");
-  ids.push("X02");
-  return ids;
-}
-const ALL_BOOTHS = getAllBooths();
-
-function buildGraph() {
-  const g = {};
-  Object.keys(ALL_NODES).forEach(id => { g[id] = []; });
-
-  for (let ai = 0; ai < AISLE_XS.length; ai++) {
-    for (let ti = 0; ti < A_TIERS.length; ti++) {
-      const cur = `_a${ai}_${ti}`;
-      if (ti + 1 < A_TIERS.length) {
-        const nb = `_a${ai}_${ti + 1}`;
-        const d = Math.abs(A_TIERS[ti] - A_TIERS[ti + 1]);
-        g[cur].push({ id: nb, d }); g[nb].push({ id: cur, d });
-      }
-      if (ti === 1 && ai + 1 < AISLE_XS.length) {
-        const nb = `_a${ai + 1}_${ti}`;
-        const d = Math.abs(AISLE_XS[ai] - AISLE_XS[ai + 1]);
-        g[cur].push({ id: nb, d }); g[nb].push({ id: cur, d });
-      }
-    }
-  }
-
-  ALL_BOOTHS.forEach(bid => {
-    const bp = POS[bid]; if (!bp) return;
-    const sorted = AISLE_XS.map((ax, ai) => ({ ai, dx: Math.abs(bp.cx - ax) })).sort((a, b) => a.dx - b.dx);
-    const nearestTier = bp.cy < A_TIERS[1] ? 0 : 2;
-
-    sorted.slice(0, 2).forEach(({ ai, dx }) => {
-      if (dx > CW_CLUSTER * 1.5) return;
-      const ay = A_TIERS[nearestTier];
-      const aid = `_a${ai}_${nearestTier}`;
-      const d = Math.hypot(bp.cx - AISLE_XS[ai], bp.cy - ay);
-      g[bid].push({ id: aid, d }); g[aid].push({ id: bid, d });
-    });
-  });
-  return g;
-}
-const GRAPH = buildGraph();
-const ALLEY_GRAPH = Object.fromEntries(
-  Object.entries(GRAPH)
-    .filter(([id]) => id.startsWith("_a"))
-    .map(([id, edges]) => [id, edges.filter(({ id: nb }) => nb.startsWith("_a"))])
-);
 
 function nearestAisleIndexByX(x) {
   let best = 0;
@@ -742,10 +553,10 @@ function BoothModal({ boothId, tenant, onClose, onNavigate }) {
 }
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
-export default function FloorMap() {
-  const [users, setUsers] = useState([]);
-  const [fandoms, setFandoms] = useState(DEFAULT_FANDOMS);
-  const [tenants, setTenants] = useState({});
+export default function FloorMap({ initialUsers = [], initialFandoms = DEFAULT_FANDOMS, initialTenants = {} }) {
+  const [users, setUsers] = useState(initialUsers);
+  const [fandoms, setFandoms] = useState(initialFandoms.length ? initialFandoms : DEFAULT_FANDOMS);
+  const [tenants, setTenants] = useState(initialTenants);
   const [search, setSearch] = useState("");
   const [selFandom, setSelFandom] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
@@ -777,42 +588,6 @@ export default function FloorMap() {
     } catch { }
   }, []);
 
-  // Load data from API on mount
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [usersRes, fandomsRes] = await Promise.all([
-          fetch("/api/users"),
-          fetch("/api/fandoms"),
-        ]);
-        const usersData = await usersRes.json();
-        const fandomsData = await fandomsRes.json();
-
-        // Load catalogs and prices for users with booths
-        const usersWithBooths = usersData.filter(u => u.booths?.length > 0);
-        const catalogMap = {};
-        const pricesMap = {};
-
-        if (usersWithBooths.length > 0) {
-          const [catalogResults, priceResults] = await Promise.all([
-            Promise.all(usersWithBooths.map(u => fetch(`/api/catalog?userId=${u.id}`).then(r => r.json()).catch(() => []))),
-            Promise.all(usersWithBooths.map(u => fetch(`/api/prices?userId=${u.id}`).then(r => r.json()).catch(() => []))),
-          ]);
-          usersWithBooths.forEach((u, i) => {
-            catalogMap[u.id] = catalogResults[i];
-            pricesMap[u.id] = priceResults[i];
-          });
-        }
-
-        setUsers(usersData);
-        setFandoms(fandomsData);
-        setTenants(buildTenants(usersData, catalogMap, pricesMap));
-      } catch (err) {
-        console.error("Failed to load data:", err);
-      }
-    }
-    loadData();
-  }, []);
 
   useEffect(() => {
     if (!search.trim()) { setSuggestions([]); return; }
@@ -973,7 +748,6 @@ export default function FloorMap() {
   ], [STRIP_Y, STRIP_H, XZ1, XZ2, XZ3, XZ4, XZ5, PX, UPPER_BOT, FULL_H]);
 
   const sp = showPath && fullPath.length >= 2 ? svgPath(fullPath) : "";
-  const midY = (UY + 8 * (BH + BG) + LY) / 2;
 
   // NeoBrutalism color tokens
   const NB = {

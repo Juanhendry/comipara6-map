@@ -28,11 +28,12 @@ app/
     prices/         — CRUD: price list per user
 
 components/
-  FloorMap.jsx      — Main interactive SVG floor map
+  FloorMap.jsx      — Main interactive SVG floor map (client, receives server data as props)
 
 lib/
   db.js             — SQLite connection + schema + auto-seeding from JSON
   dataStore.js      — All database functions (users, fandoms, catalog, prices)
+  map-geometry.js   — Static booth geometry: positions, aisle graph, all constants (shared server+client)
   security.js       — Input sanitization, upload hardening HOFs
   authHelper.js     — Auth utilities
   imageUtils.js     — Client-side image compression
@@ -55,6 +56,18 @@ npm run build   # Production build
 npm run start   # Production on port 5000
 ```
 
+## Performance Architecture
+
+Load is distributed between server and client:
+
+| Layer | Responsibility |
+|---|---|
+| **Server (ISR, 60s)** | Fetches users/fandoms/catalog/prices from SQLite, builds tenants map, renders page with data embedded — no client API calls on load |
+| **`lib/map-geometry.js`** | Computes all booth positions, aisle graph, and constants once at module load — imported by both server and client |
+| **Client (FloorMap)** | Handles pan/zoom, booth clicks, fandom search, and A* pathfinding only |
+
+This eliminates the API waterfall on first load (previously 3–4 sequential fetches before map showed data), which is the main bottleneck on budget Android phones.
+
 ## Key Notes
 
 - The SQLite database is auto-created at `data/cp6.db` on first run
@@ -62,6 +75,7 @@ npm run start   # Production on port 5000
 - Catalog images are stored locally at `public/uploads/{userId}/` and served as static files
 - Sessions are stored in `localStorage` (client-side only)
 - The `/dashboard` route is protected by middleware (requires `cp6_user` in localStorage)
+- `app/page.jsx` is an async server component with `export const revalidate = 60` — map data is cached and revalidated in the background; admin changes appear within 60 s without a deploy
 
 ## Migration from Vercel/Supabase
 
