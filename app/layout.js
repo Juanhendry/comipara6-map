@@ -1,5 +1,4 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://comipara6.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || `https://${process.env.REPLIT_DEV_DOMAIN || 'localhost:5000'}`),
   title: {
     template: '%s | Comipara 6 Map',
     default: 'Comipara 6 Floor Map',
@@ -71,7 +70,6 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <SpeedInsights />
       </body>
     </html>
   );
