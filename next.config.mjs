@@ -20,9 +20,6 @@ const nextConfig = {
     ],
   },
 
-  // Production-optimized standalone output
-  output: "standalone",
-
   // Global Security Headers
   async headers() {
     return [

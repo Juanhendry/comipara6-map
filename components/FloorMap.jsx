@@ -635,8 +635,9 @@ function buildTenants(users, catalogMap, pricesMap) {
   const t = {};
   users.forEach(u => {
     if (!u.booths?.length) return;
-    const catalog = catalogMap[u.id] || [];
-    const prices = pricesMap[u.id] || [];
+    const uid = String(u.id);
+    const catalog = catalogMap[uid] || catalogMap[u.id] || [];
+    const prices = pricesMap[uid] || pricesMap[u.id] || [];
     u.booths.forEach(b => { t[b] = { userId: u.id, user: u.name, fandoms: u.fandoms, catalog, prices, allBooths: u.booths }; });
   });
   return t;
@@ -777,36 +778,16 @@ export default function FloorMap() {
     } catch { }
   }, []);
 
-  // Load data from API on mount
+  // Load data from API on mount — single batched request
   useEffect(() => {
     async function loadData() {
       try {
-        const [usersRes, fandomsRes] = await Promise.all([
-          fetch("/api/users"),
-          fetch("/api/fandoms"),
-        ]);
-        const usersData = await usersRes.json();
-        const fandomsData = await fandomsRes.json();
-
-        // Load catalogs and prices for users with booths
-        const usersWithBooths = usersData.filter(u => u.booths?.length > 0);
-        const catalogMap = {};
-        const pricesMap = {};
-
-        if (usersWithBooths.length > 0) {
-          const [catalogResults, priceResults] = await Promise.all([
-            Promise.all(usersWithBooths.map(u => fetch(`/api/catalog?userId=${u.id}`).then(r => r.json()).catch(() => []))),
-            Promise.all(usersWithBooths.map(u => fetch(`/api/prices?userId=${u.id}`).then(r => r.json()).catch(() => []))),
-          ]);
-          usersWithBooths.forEach((u, i) => {
-            catalogMap[u.id] = catalogResults[i];
-            pricesMap[u.id] = priceResults[i];
-          });
-        }
+        const res = await fetch("/api/mapdata");
+        const { users: usersData, fandoms: fandomsData, catalog, prices } = await res.json();
 
         setUsers(usersData);
         setFandoms(fandomsData);
-        setTenants(buildTenants(usersData, catalogMap, pricesMap));
+        setTenants(buildTenants(usersData, catalog, prices));
       } catch (err) {
         console.error("Failed to load data:", err);
       }
