@@ -781,22 +781,25 @@ export default function FloorMap() {
     } catch { }
   }, []);
 
-  // Load data from API on mount — single batched request
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch("/api/mapdata");
-        const { users: usersData, fandoms: fandomsData, catalog, prices } = await res.json();
-
-        setUsers(usersData);
-        setFandoms(fandomsData);
-        setTenants(buildTenants(usersData, catalog, prices));
-      } catch (err) {
-        console.error("Failed to load data:", err);
-      }
+  // Load data from API — single batched request, always fresh
+  const loadMapData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/mapdata", { cache: "no-store" });
+      const { users: usersData, fandoms: fandomsData, catalog, prices } = await res.json();
+      setUsers(usersData);
+      setFandoms(fandomsData);
+      setTenants(buildTenants(usersData, catalog, prices));
+    } catch (err) {
+      console.error("Failed to load data:", err);
     }
-    loadData();
   }, []);
+
+  useEffect(() => {
+    loadMapData();
+    // Refetch when the user returns to this tab/window (e.g. after admin changes)
+    window.addEventListener("focus", loadMapData);
+    return () => window.removeEventListener("focus", loadMapData);
+  }, [loadMapData]);
 
   useEffect(() => {
     if (!search.trim()) { setSuggestions([]); return; }
