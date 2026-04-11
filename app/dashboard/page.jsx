@@ -130,47 +130,72 @@ function FandomPicker({ fandoms, selected, onChange }) {
 }
 
 // ─── BULK CATALOG UPLOAD (super_admin only) ───────────────────────────────────
-function BulkCatalogUpload({ users, showToast }) {
-  const [files,         setFiles]         = useState([]);
-  const [previews,      setPreviews]       = useState([]);
-  const [selectedBooth, setSelectedBooth] = useState("");
-  const [uploading,     setUploading]     = useState(false);
-  const [progress,      setProgress]      = useState({ done: 0, total: 0 });
-  const [dragging,      setDragging]      = useState(false);
+function BulkCatalogUpload({ users, fandoms, showToast, onFandomsSaved }) {
+  const [files,          setFiles]          = useState([]);
+  const [previews,       setPreviews]        = useState([]);
+  const [selectedBooth,  setSelectedBooth]  = useState("");
+  const [selectedFandoms,setSelectedFandoms]= useState([]);
+  const [uploading,      setUploading]      = useState(false);
+  const [savingFandoms,  setSavingFandoms]  = useState(false);
+  const [progress,       setProgress]       = useState({ done: 0, total: 0 });
+  const [dragging,       setDragging]       = useState(false);
   const fileInputRef = useRef();
 
   // Build list: every booth assigned to a user
   const boothOptions = users
     .filter(u => u.booths?.length > 0)
-    .flatMap(u => u.booths.map(b => ({ booth: b, userId: u.id, userName: u.name })))
+    .flatMap(u => u.booths.map(b => ({ booth: b, userId: u.id, userName: u.name, fandoms: u.fandoms || [] })))
     .sort((a, b) => a.booth.localeCompare(b.booth, undefined, { numeric: true }));
+
+  const targetOption = boothOptions.find(o => o.booth === selectedBooth);
+  const targetUser   = users.find(u => u.id === targetOption?.userId);
+
+  function handleBoothChange(booth) {
+    setSelectedBooth(booth);
+    const opt = boothOptions.find(o => o.booth === booth);
+    setSelectedFandoms(opt?.fandoms || []);
+  }
 
   function handleFiles(incoming) {
     const imgs = Array.from(incoming).filter(f => f.type.startsWith("image/"));
     setFiles(imgs);
-    const urls = imgs.map(f => URL.createObjectURL(f));
-    setPreviews(urls);
+    setPreviews(imgs.map(f => URL.createObjectURL(f)));
     setProgress({ done: 0, total: 0 });
   }
 
   function onInputChange(e) { handleFiles(e.target.files); e.target.value = ""; }
-
-  function onDrop(e) {
-    e.preventDefault(); setDragging(false);
-    handleFiles(e.dataTransfer.files);
-  }
+  function onDrop(e) { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }
 
   function removeFile(i) {
-    const nf = files.filter((_, idx) => idx !== i);
-    const np = previews.filter((_, idx) => idx !== i);
     URL.revokeObjectURL(previews[i]);
-    setFiles(nf); setPreviews(np);
+    setFiles(f => f.filter((_, idx) => idx !== i));
+    setPreviews(p => p.filter((_, idx) => idx !== i));
+  }
+
+  async function handleSaveFandoms() {
+    if (!targetUser) return;
+    setSavingFandoms(true);
+    try {
+      const res = await fetch("/api/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...targetUser, fandoms: selectedFandoms }),
+      });
+      if (res.ok) {
+        showToast(`Fandom booth ${selectedBooth} berhasil disimpan`);
+        onFandomsSaved(targetUser.id, selectedFandoms);
+      } else {
+        showToast("Gagal menyimpan fandom", "error");
+      }
+    } catch (err) {
+      console.error("Save fandoms error:", err);
+      showToast("Gagal menyimpan fandom", "error");
+    }
+    setSavingFandoms(false);
   }
 
   async function handleUpload() {
-    if (!files.length || !selectedBooth) return;
-    const target = boothOptions.find(o => o.booth === selectedBooth);
-    if (!target) return;
+    if (!files.length || !selectedBooth || !targetOption) return;
 
     setUploading(true);
     setProgress({ done: 0, total: files.length });
@@ -180,7 +205,7 @@ function BulkCatalogUpload({ users, showToast }) {
       try {
         const compressed = await compressImageFile(files[i]);
         const formData = new FormData();
-        formData.append("userId", String(target.userId));
+        formData.append("userId", String(targetOption.userId));
         formData.append("files", compressed);
         const res = await fetch("/api/catalog", { method: "POST", body: formData });
         if (res.ok) successCount++;
@@ -197,57 +222,20 @@ function BulkCatalogUpload({ users, showToast }) {
       showToast(`${successCount} dari ${files.length} gambar berhasil diupload`, "error");
     }
     previews.forEach(url => URL.revokeObjectURL(url));
-    setFiles([]); setPreviews([]); setSelectedBooth("");
+    setFiles([]); setPreviews([]);
     setProgress({ done: 0, total: 0 });
   }
 
-  const targetUser = boothOptions.find(o => o.booth === selectedBooth);
-
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-5">
-      <h2 className="text-sm font-bold text-gray-900">Bulk Upload Katalog</h2>
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-6">
+      <h2 className="text-sm font-bold text-gray-900">Bulk Assign &amp; Upload</h2>
 
-      {/* ── Step 1: Pick images ── */}
+      {/* ── Step 1: Select booth ── */}
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">① Pilih Gambar</p>
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={onDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragging ? "border-violet-400 bg-violet-50" : "border-gray-200 hover:border-violet-300 hover:bg-gray-50"}`}
-        >
-          <div className="text-3xl mb-1">🖼️</div>
-          <p className="text-xs font-semibold text-gray-600">Klik atau drag &amp; drop gambar di sini</p>
-          <p className="text-[10px] text-gray-400 mt-0.5">JPG, PNG, WEBP — bisa multiple</p>
-          <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onInputChange} />
-        </div>
-
-        {/* Previews */}
-        {previews.length > 0 && (
-          <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
-            {previews.map((url, i) => (
-              <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-100">
-                <img src={url} alt="" className="w-full h-full object-cover" />
-                <button
-                  onClick={e => { e.stopPropagation(); removeFile(i); }}
-                  className="absolute top-0.5 right-0.5 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity leading-none"
-                >✕</button>
-              </div>
-            ))}
-          </div>
-        )}
-        {files.length > 0 && (
-          <p className="text-[10px] text-gray-400 mt-1">{files.length} gambar dipilih</p>
-        )}
-      </div>
-
-      {/* ── Step 2: Select booth ── */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">② Pilih Nomor Booth</p>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">① Pilih Booth</p>
         <select
           value={selectedBooth}
-          onChange={e => setSelectedBooth(e.target.value)}
+          onChange={e => handleBoothChange(e.target.value)}
           className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-violet-400 bg-white"
         >
           <option value="">— Pilih booth —</option>
@@ -257,44 +245,90 @@ function BulkCatalogUpload({ users, showToast }) {
             </option>
           ))}
         </select>
-        {targetUser && (
-          <p className="text-[10px] text-gray-400 mt-1">
-            Upload akan masuk ke katalog <span className="font-semibold text-violet-600">{targetUser.userName}</span>
-          </p>
-        )}
         {boothOptions.length === 0 && (
           <p className="text-xs text-gray-400 mt-1">Belum ada booth yang di-assign ke user manapun.</p>
         )}
       </div>
 
-      {/* ── Step 3: Upload ── */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">③ Upload</p>
-
-        {/* Progress bar */}
-        {uploading && progress.total > 0 && (
-          <div className="mb-3">
-            <div className="flex justify-between text-[10px] text-gray-400 mb-1">
-              <span>Mengupload...</span>
-              <span>{progress.done}/{progress.total}</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${(progress.done / progress.total) * 100}%` }}
-              />
-            </div>
+      {/* ── Step 2: Assign fandoms (shown when booth selected) ── */}
+      {targetOption && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">② Assign Fandom — <span className="text-violet-600">{targetOption.userName}</span></p>
+            <span className="text-[10px] text-gray-400">{selectedFandoms.length} dipilih</span>
           </div>
-        )}
+          <FandomPicker fandoms={fandoms} selected={selectedFandoms} onChange={setSelectedFandoms} />
+          <button
+            onClick={handleSaveFandoms}
+            disabled={savingFandoms}
+            className="mt-3 w-full py-2 bg-amber-400 text-black text-xs font-bold rounded-xl hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {savingFandoms ? "Menyimpan..." : `💾 Simpan Fandom untuk Booth ${selectedBooth}`}
+          </button>
+        </div>
+      )}
 
-        <button
-          onClick={handleUpload}
-          disabled={!files.length || !selectedBooth || uploading}
-          className="w-full py-2.5 bg-violet-500 text-white text-sm font-semibold rounded-xl hover:bg-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          {uploading ? `Mengupload ${progress.done}/${progress.total}...` : `Upload ${files.length || 0} Gambar ke Booth ${selectedBooth || "—"}`}
-        </button>
-      </div>
+      {/* ── Step 3: Pick images ── */}
+      {targetOption && (
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">③ Upload Katalog (opsional)</p>
+          <div
+            onDragOver={e => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${dragging ? "border-violet-400 bg-violet-50" : "border-gray-200 hover:border-violet-300 hover:bg-gray-50"}`}
+          >
+            <div className="text-2xl mb-1">🖼️</div>
+            <p className="text-xs font-semibold text-gray-600">Klik atau drag &amp; drop gambar</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">JPG, PNG, WEBP — bisa multiple</p>
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onInputChange} />
+          </div>
+
+          {previews.length > 0 && (
+            <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
+              {previews.map((url, i) => (
+                <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-100">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button
+                    onClick={e => { e.stopPropagation(); removeFile(i); }}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                  >✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+          {files.length > 0 && <p className="text-[10px] text-gray-400 mt-1">{files.length} gambar dipilih</p>}
+
+          {/* Progress bar */}
+          {uploading && progress.total > 0 && (
+            <div className="mt-3">
+              <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                <span>Mengupload...</span>
+                <span>{progress.done}/{progress.total}</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div className="bg-violet-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={handleUpload}
+            disabled={!files.length || uploading}
+            className="mt-3 w-full py-2.5 bg-violet-500 text-white text-sm font-semibold rounded-xl hover:bg-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {uploading ? `Mengupload ${progress.done}/${progress.total}...` : `📤 Upload ${files.length || 0} Gambar ke Booth ${selectedBooth}`}
+          </button>
+        </div>
+      )}
+
+      {!targetOption && (
+        <div className="text-center py-8 text-gray-300">
+          <div className="text-3xl mb-2">☝️</div>
+          <p className="text-xs">Pilih booth terlebih dahulu untuk memulai</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -860,7 +894,15 @@ export default function Dashboard() {
 
         {/* ── TAB: BULK UPLOAD (super_admin) ── */}
         {activeTab==="bulkupload"&&isSuperAdmin&&(
-          <BulkCatalogUpload users={users} showToast={showToast}/>
+          <BulkCatalogUpload
+            users={users}
+            fandoms={fandoms}
+            showToast={showToast}
+            onFandomsSaved={(userId, updatedFandoms) => {
+              const updated = users.map(u => u.id===userId ? { ...u, fandoms: updatedFandoms } : u);
+              persistUsers(updated, [userId]);
+            }}
+          />
         )}
       </div>
 
