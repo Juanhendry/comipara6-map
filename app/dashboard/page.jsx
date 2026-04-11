@@ -129,6 +129,176 @@ function FandomPicker({ fandoms, selected, onChange }) {
   );
 }
 
+// ─── BULK CATALOG UPLOAD (super_admin only) ───────────────────────────────────
+function BulkCatalogUpload({ users, showToast }) {
+  const [files,         setFiles]         = useState([]);
+  const [previews,      setPreviews]       = useState([]);
+  const [selectedBooth, setSelectedBooth] = useState("");
+  const [uploading,     setUploading]     = useState(false);
+  const [progress,      setProgress]      = useState({ done: 0, total: 0 });
+  const [dragging,      setDragging]      = useState(false);
+  const fileInputRef = useRef();
+
+  // Build list: every booth assigned to a user
+  const boothOptions = users
+    .filter(u => u.booths?.length > 0)
+    .flatMap(u => u.booths.map(b => ({ booth: b, userId: u.id, userName: u.name })))
+    .sort((a, b) => a.booth.localeCompare(b.booth, undefined, { numeric: true }));
+
+  function handleFiles(incoming) {
+    const imgs = Array.from(incoming).filter(f => f.type.startsWith("image/"));
+    setFiles(imgs);
+    const urls = imgs.map(f => URL.createObjectURL(f));
+    setPreviews(urls);
+    setProgress({ done: 0, total: 0 });
+  }
+
+  function onInputChange(e) { handleFiles(e.target.files); e.target.value = ""; }
+
+  function onDrop(e) {
+    e.preventDefault(); setDragging(false);
+    handleFiles(e.dataTransfer.files);
+  }
+
+  function removeFile(i) {
+    const nf = files.filter((_, idx) => idx !== i);
+    const np = previews.filter((_, idx) => idx !== i);
+    URL.revokeObjectURL(previews[i]);
+    setFiles(nf); setPreviews(np);
+  }
+
+  async function handleUpload() {
+    if (!files.length || !selectedBooth) return;
+    const target = boothOptions.find(o => o.booth === selectedBooth);
+    if (!target) return;
+
+    setUploading(true);
+    setProgress({ done: 0, total: files.length });
+
+    let successCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const compressed = await compressImageFile(files[i]);
+        const formData = new FormData();
+        formData.append("userId", String(target.userId));
+        formData.append("files", compressed);
+        const res = await fetch("/api/catalog", { method: "POST", body: formData });
+        if (res.ok) successCount++;
+      } catch (err) {
+        console.error("Upload error:", files[i].name, err);
+      }
+      setProgress({ done: i + 1, total: files.length });
+    }
+
+    setUploading(false);
+    if (successCount === files.length) {
+      showToast(`${successCount} gambar berhasil diupload ke booth ${selectedBooth}`);
+    } else {
+      showToast(`${successCount} dari ${files.length} gambar berhasil diupload`, "error");
+    }
+    previews.forEach(url => URL.revokeObjectURL(url));
+    setFiles([]); setPreviews([]); setSelectedBooth("");
+    setProgress({ done: 0, total: 0 });
+  }
+
+  const targetUser = boothOptions.find(o => o.booth === selectedBooth);
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-5">
+      <h2 className="text-sm font-bold text-gray-900">Bulk Upload Katalog</h2>
+
+      {/* ── Step 1: Pick images ── */}
+      <div>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">① Pilih Gambar</p>
+        <div
+          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragging ? "border-violet-400 bg-violet-50" : "border-gray-200 hover:border-violet-300 hover:bg-gray-50"}`}
+        >
+          <div className="text-3xl mb-1">🖼️</div>
+          <p className="text-xs font-semibold text-gray-600">Klik atau drag &amp; drop gambar di sini</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">JPG, PNG, WEBP — bisa multiple</p>
+          <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={onInputChange} />
+        </div>
+
+        {/* Previews */}
+        {previews.length > 0 && (
+          <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
+            {previews.map((url, i) => (
+              <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-100">
+                <img src={url} alt="" className="w-full h-full object-cover" />
+                <button
+                  onClick={e => { e.stopPropagation(); removeFile(i); }}
+                  className="absolute top-0.5 right-0.5 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                >✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+        {files.length > 0 && (
+          <p className="text-[10px] text-gray-400 mt-1">{files.length} gambar dipilih</p>
+        )}
+      </div>
+
+      {/* ── Step 2: Select booth ── */}
+      <div>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">② Pilih Nomor Booth</p>
+        <select
+          value={selectedBooth}
+          onChange={e => setSelectedBooth(e.target.value)}
+          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-violet-400 bg-white"
+        >
+          <option value="">— Pilih booth —</option>
+          {boothOptions.map(o => (
+            <option key={`${o.booth}-${o.userId}`} value={o.booth}>
+              {o.booth} — {o.userName}
+            </option>
+          ))}
+        </select>
+        {targetUser && (
+          <p className="text-[10px] text-gray-400 mt-1">
+            Upload akan masuk ke katalog <span className="font-semibold text-violet-600">{targetUser.userName}</span>
+          </p>
+        )}
+        {boothOptions.length === 0 && (
+          <p className="text-xs text-gray-400 mt-1">Belum ada booth yang di-assign ke user manapun.</p>
+        )}
+      </div>
+
+      {/* ── Step 3: Upload ── */}
+      <div>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">③ Upload</p>
+
+        {/* Progress bar */}
+        {uploading && progress.total > 0 && (
+          <div className="mb-3">
+            <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+              <span>Mengupload...</span>
+              <span>{progress.done}/{progress.total}</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div
+                className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${(progress.done / progress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={handleUpload}
+          disabled={!files.length || !selectedBooth || uploading}
+          className="w-full py-2.5 bg-violet-500 text-white text-sm font-semibold rounded-xl hover:bg-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {uploading ? `Mengupload ${progress.done}/${progress.total}...` : `Upload ${files.length || 0} Gambar ke Booth ${selectedBooth || "—"}`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const router = useRouter();
@@ -440,9 +610,10 @@ export default function Dashboard() {
     { id:"fandom",  label:"Fandom Saya" },
     { id:"catalog", label:"Katalog" },
     { id:"prices",  label:"Harga" },
-    ...(isAdmin ? [{ id:"users",   label:"Kelola User" }] : []),
-    ...(isAdmin ? [{ id:"booths",  label:"Assign Booth" }] : []),
-    ...(isAdmin ? [{ id:"fandoms", label:"Master Fandom" }] : []),
+    ...(isAdmin ? [{ id:"users",      label:"Kelola User" }] : []),
+    ...(isAdmin ? [{ id:"booths",     label:"Assign Booth" }] : []),
+    ...(isAdmin ? [{ id:"fandoms",    label:"Master Fandom" }] : []),
+    ...(isSuperAdmin ? [{ id:"bulkupload", label:"📦 Bulk Upload" }] : []),
   ];
 
   return (
@@ -685,6 +856,11 @@ export default function Dashboard() {
         {/* ── TAB: MASTER FANDOM (admin) ── */}
         {activeTab==="fandoms"&&isAdmin&&(
           <FandomManager fandoms={fandoms} onAdd={addFandoms} onDelete={deleteFandom}/>
+        )}
+
+        {/* ── TAB: BULK UPLOAD (super_admin) ── */}
+        {activeTab==="bulkupload"&&isSuperAdmin&&(
+          <BulkCatalogUpload users={users} showToast={showToast}/>
         )}
       </div>
 
