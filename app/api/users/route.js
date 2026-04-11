@@ -1,5 +1,6 @@
 import { getUsers, createUser, updateUser, deleteUser } from "@/lib/dataStore";
 import { withSanitization } from "@/lib/security";
+import { revalidatePath } from "next/cache";
 
 // GET /api/users — returns all users
 export async function GET(request) {
@@ -31,6 +32,7 @@ async function RawPOST(request) {
     });
     // Don't return password hash
     const { password: _, ...safeUser } = newUser;
+    revalidatePath("/api/mapdata");
     return Response.json(safeUser, { status: 201 });
   } catch (err) {
     return Response.json({ error: err.message || "Failed to create user" }, { status: 400 });
@@ -45,6 +47,7 @@ async function RawPUT(request) {
     const body = await request.json();
     if (!body.id) return Response.json({ error: "Missing id" }, { status: 400 });
     await updateUser(body.id, body);
+    revalidatePath("/api/mapdata");
     return Response.json({ ok: true });
   } catch (err) {
     return Response.json({ error: err.message || "Failed to update user" }, { status: 400 });
@@ -59,6 +62,7 @@ export async function DELETE(request) {
   if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
   try {
     await deleteUser(id);
+    revalidatePath("/api/mapdata");
     return Response.json({ ok: true });
   } catch (err) {
     return Response.json({ error: err.message || "Failed to delete user" }, { status: 400 });
