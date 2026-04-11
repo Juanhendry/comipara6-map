@@ -1,6 +1,7 @@
 import { getCatalog, addCatalogItem, deleteCatalogItem, uploadCatalogFile } from "@/lib/dataStore";
 import sharp from "sharp";
 import { withUploadHardening } from "@/lib/security";
+import { revalidatePath } from "next/cache";
 
 // GET /api/catalog?userId=X
 export async function GET(request) {
@@ -49,6 +50,7 @@ async function RawPOST(request) {
 
   // Return full catalog after all uploads
   const catalog = await getCatalog(numericUserId);
+  revalidatePath("/api/mapdata");
   return Response.json(catalog);
 }
 
@@ -66,5 +68,6 @@ export async function DELETE(request) {
   }
 
   const catalog = await getCatalog(Number(userId));
+  revalidatePath("/api/mapdata");
   return Response.json(catalog);
 }
