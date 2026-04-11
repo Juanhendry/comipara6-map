@@ -1,4 +1,5 @@
 import { getPrices, addPrice, deletePrice } from "@/lib/dataStore";
+import { revalidatePath } from "next/cache";
 
 // GET /api/prices?userId=X
 export async function GET(request) {
@@ -16,6 +17,7 @@ export async function POST(request) {
   try {
     await addPrice(Number(userId), item, price);
     const prices = await getPrices(Number(userId));
+    revalidatePath("/api/mapdata");
     return Response.json(prices);
   } catch (err) {
     return Response.json({ error: err.message || "Failed" }, { status: 400 });
@@ -28,5 +30,6 @@ export async function DELETE(request) {
   if (!userId) return Response.json({ error: "Missing userId" }, { status: 400 });
   await deletePrice(priceId);
   const prices = await getPrices(Number(userId));
+  revalidatePath("/api/mapdata");
   return Response.json(prices);
 }
